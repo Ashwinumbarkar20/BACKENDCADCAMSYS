@@ -42,10 +42,30 @@ export const getSolutionBySlug = asyncHandler(async (req, res) => {
   const doc = await Solution.findOne({ slug: req.params.slug.toLowerCase(), ...publishedMatch })
     .populate([
       { path: "coverImage" },
-      { path: "products", match: publishedMatch, select: "title slug tagline coverImage seo" },
-      { path: "industries", match: publishedMatch, select: "title slug coverImage headline seo" },
-      { path: "blogs", match: publishedMatch, select: "title slug excerpt featuredImage publishedAt seo" },
-      { path: "caseStudies", match: publishedMatch, select: "title slug customerName customerLogo industry seo" },
+      {
+        path: "products",
+        match: publishedMatch,
+        select: "title slug tagline coverImage seo",
+        populate: [{ path: "coverImage" }],
+      },
+      {
+        path: "industries",
+        match: publishedMatch,
+        select: "title slug coverImage headline seo",
+        populate: [{ path: "coverImage" }],
+      },
+      {
+        path: "blogs",
+        match: publishedMatch,
+        select: "title slug excerpt featuredImage publishedAt seo",
+        populate: [{ path: "featuredImage" }],
+      },
+      {
+        path: "caseStudies",
+        match: publishedMatch,
+        select: "title slug customerName customerLogo industry seo",
+        populate: [{ path: "customerLogo" }],
+      },
       { path: "testimonials", match: publishedMatch, select: "customerName company designation quote photo logo rating seo" },
       { path: "seo.ogImage" },
       { path: "seo.twitterImage" },
