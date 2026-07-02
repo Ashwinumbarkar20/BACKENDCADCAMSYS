@@ -28,7 +28,7 @@ const items = [
     children: [
       {
         label: "2D CAM Solutions",
-        url: "#",
+        url: "/solutions/2d-cam-solutions",
         children: [
           { label: "Almacam Cut", url: "/products/almacam-cut" },
           { label: "Almacam Punch", url: "/products/almacam-punch" },
@@ -38,21 +38,19 @@ const items = [
       },
       {
         label: "Nesting & Optimization",
-        url: "#",
+        url: "/solutions/nesting-optimization",
         children: [{ label: "Almacam Nester", url: "/products/almacam-nester" }],
       },
       {
         label: "3D CAM Solutions",
-        url: "#",
-        children: [
-          { label: "Almacam Tube", url: "/products/almacam-tube" },
+        url: "/solutions/3d-cam-solutions",
           { label: "Almacam Space Cut", url: "/products/almacam-space-cut" },
           { label: "Almacam Cube", url: "/products/almacam-cube" },
         ],
       },
       {
         label: "Quotation & Costing",
-        url: "#",
+        url: "/solutions/quotation-costing",
         children: [
           { label: "AlmaQuote", url: "/products/almaquote" },
           { label: "WebQuote", url: "/products/webquote" },
@@ -60,7 +58,7 @@ const items = [
       },
       {
         label: "ERP / Production Integration",
-        url: "#",
+        url: "/solutions/erp-production-integration",
         children: [
           { label: "Production Management", url: "/products/production-management" },
           { label: "Workshop Scheduler", url: "/products/workshop-scheduler" },
@@ -68,7 +66,7 @@ const items = [
       },
       {
         label: "Robotics",
-        url: "#",
+        url: "/solutions/robotics",
         children: [
           { label: "OLP Welding", url: "/products/olp-welding" },
           { label: "OLP Cutting", url: "/products/olp-cutting" },

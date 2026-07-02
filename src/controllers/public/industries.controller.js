@@ -29,7 +29,16 @@ export const getIndustryBySlug = asyncHandler(async (req, res) => {
   const doc = await Industry.findOne({ slug: req.params.slug.toLowerCase(), ...publishedMatch })
     .populate([
       { path: "coverImage" },
-      { path: "products", match: publishedMatch, select: "title slug shortDescription hero solution seo" },
+      {
+        path: "products",
+        match: publishedMatch,
+        select: "title slug tagline coverImage category solution seo",
+        populate: [
+          { path: "coverImage" },
+          { path: "category", select: "title slug" },
+          { path: "solution", match: publishedMatch, select: "title slug" },
+        ],
+      },
       { path: "caseStudies", match: publishedMatch, select: "title slug customerName customerLogo industry seo" },
       { path: "testimonials", match: publishedMatch, select: "customerName company designation quote photo logo rating seo" },
       { path: "blogs", match: publishedMatch, select: "title slug excerpt featuredImage publishedAt seo" },

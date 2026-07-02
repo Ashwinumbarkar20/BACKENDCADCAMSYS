@@ -99,4 +99,18 @@ const ProductSchema = new mongoose.Schema(
 ProductSchema.plugin(publishablePlugin);
 ProductSchema.index({ status: 1, publishedAt: -1 });
 
+ProductSchema.post("save", async function syncProductSolution() {
+  const Solution = mongoose.model("Solution");
+  const productId = this._id;
+  if (this.solution) {
+    await Solution.findByIdAndUpdate(this.solution, { $addToSet: { products: productId } });
+    await Solution.updateMany(
+      { products: productId, _id: { $ne: this.solution } },
+      { $pull: { products: productId } },
+    );
+  } else {
+    await Solution.updateMany({ products: productId }, { $pull: { products: productId } });
+  }
+});
+
 export const Product = mongoose.model("Product", ProductSchema);
