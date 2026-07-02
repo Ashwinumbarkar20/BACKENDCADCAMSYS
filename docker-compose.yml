@@ -1,0 +1,55 @@
+# Headless CMS stack: backend API + admin SPA + (optional) local MongoDB.
+#
+# Default (Atlas) deployment:
+#   docker compose up -d --build
+#
+# Run a local MongoDB container instead of Atlas:
+#   docker compose --profile local-db up -d --build
+#   (and set MONGODB_URI=mongodb://mongo:27017/cadcamsys in your .env)
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: cadcamsys-mongo
+    profiles: ["local-db"]
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-cadcamsys}
+    volumes:
+      - mongo_data:/data/db
+    # Not published by default — backend reaches it on the internal network at mongo:27017.
+    expose:
+      - "27017"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cadcamsys-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-4000}
+    volumes:
+      - uploads:/app/uploads
+    ports:
+      - "${BACKEND_PORT:-4000}:4000"
+
+  admin:
+    build:
+      context: ../Admin_Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+    container_name: cadcamsys-admin
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${ADMIN_PORT:-8080}:80"
+
+volumes:
+  mongo_data:
+  uploads:
