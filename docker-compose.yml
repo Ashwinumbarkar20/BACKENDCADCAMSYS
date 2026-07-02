@@ -32,8 +32,10 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${PORT:-4000}
+    # Bind-mount a folder on the Hostinger VPS disk (your 50 GB storage).
+    # Files in ./data/uploads survive container rebuilds and redeploys.
     volumes:
-      - uploads:/app/uploads
+      - ${UPLOADS_BIND_PATH:-./data/uploads}:/app/uploads
     ports:
       - "${BACKEND_PORT:-4000}:4000"
 
@@ -52,4 +54,3 @@ services:
 
 volumes:
   mongo_data:
-  uploads:

@@ -12,7 +12,8 @@
     "seed:home": "node src/scripts/seedHome.js",
     "seed:catalog": "node src/scripts/seedCatalog.js",
     "cleanup:demo": "node src/scripts/cleanupDemo.js",
-    "backfill:blur": "node src/scripts/backfillBlur.js"
+    "backfill:blur": "node src/scripts/backfillBlur.js",
+    "check:media": "node src/scripts/checkMediaFiles.js"
   },
   "keywords": [],
   "author": "",
