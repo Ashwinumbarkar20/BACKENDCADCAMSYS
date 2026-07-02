@@ -78,7 +78,16 @@ function mountCrud(router, resource, Model, options = {}) {
 export const adminCrudRouter = Router();
 
 mountCrud(adminCrudRouter, "pages", Page);
-mountCrud(adminCrudRouter, "solutions", Solution);
+mountCrud(adminCrudRouter, "solutions", Solution, {
+  populate: [
+    { path: "coverImage" },
+    { path: "products" },
+    { path: "industries" },
+    { path: "blogs" },
+    { path: "caseStudies" },
+    { path: "testimonials" },
+  ],
+});
 mountCrud(adminCrudRouter, "product-categories", ProductCategory);
 mountCrud(adminCrudRouter, "products", Product, {
   populate: [
