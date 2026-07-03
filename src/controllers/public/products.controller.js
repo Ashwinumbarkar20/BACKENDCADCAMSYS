@@ -18,7 +18,7 @@ export const listProducts = asyncHandler(async (req, res) => {
 
   const [items, total] = await Promise.all([
     Product.find(filter)
-      .select("title slug tagline overview coverImage seo publishedAt category solution keyFeatures")
+      .select("title slug tagline overview coverImage logo seo publishedAt category solution keyFeatures")
       .sort(sort)
       .skip(skip)
       .limit(limit)
@@ -26,6 +26,7 @@ export const listProducts = asyncHandler(async (req, res) => {
         { path: "category", select: "title slug" },
         { path: "solution", select: "title slug" },
         { path: "coverImage" },
+        { path: "logo" },
         { path: "keyFeatures.image" },
       ])
       .lean(),
@@ -41,6 +42,7 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
       { path: "category", select: "title slug" },
       { path: "solution", match: publishedMatch, select: "title slug tagline seo" },
       { path: "coverImage" },
+      { path: "logo" },
       { path: "keyFeatures.image" },
       { path: "supportingMachine.images" },
       {

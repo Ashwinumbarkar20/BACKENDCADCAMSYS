@@ -69,6 +69,7 @@ const ProductSchema = new mongoose.Schema(
     solution: { type: mongoose.Schema.Types.ObjectId, ref: "Solution", index: true },
 
     coverImage: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
+    logo: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
 
     tagline: { type: String, default: "" },
     overview: { type: String, default: "" },
