@@ -19,6 +19,8 @@ const HeroSchema = new mongoose.Schema(
     secondaryCta: { type: CtaSchema, default: () => ({}) },
     // Poster / fallback image — also used on mobile and while the video loads.
     image: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
+    // Which hero background to show on the public site.
+    mediaType: { type: String, enum: ["image", "video"], default: "image" },
     // Background video: an uploaded Media file OR an external URL (YouTube/Vimeo/mp4).
     videoFile: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
     videoUrl: { type: String, default: "" },

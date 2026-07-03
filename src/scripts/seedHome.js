@@ -26,6 +26,7 @@ const doc = {
       "Production-grade CAM, quoting, and scheduling that move the entire shop floor — from RFQ to final delivery. Trusted by fabricators across HVAC, automotive, and heavy engineering.",
     primaryCta: { label: "Book Demo", href: "/contact" },
     secondaryCta: { label: "Talk to an Expert", href: "/contact" },
+    mediaType: "image",
     videoUrl: "",
   },
   trustBar: {
