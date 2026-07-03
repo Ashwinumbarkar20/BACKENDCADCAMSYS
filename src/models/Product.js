@@ -8,6 +8,7 @@ const KeyFeatureSchema = new mongoose.Schema(
     title: { type: String, default: "" },
     description: { type: String, default: "" },
     image: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
+    images: [{ type: mongoose.Schema.Types.ObjectId, ref: "Media" }],
   },
   { _id: false }
 );

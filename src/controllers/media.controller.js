@@ -11,9 +11,7 @@ export const uploadMedia = asyncHandler(async (req, res) => {
   if (!req.file) return fail(res, 400, "UPLOAD_MISSING", "No file uploaded");
 
   const caption = String(req.body?.caption ?? "").trim();
-  if (!caption) {
-    return fail(res, 400, "CAPTION_REQUIRED", "Caption is required for every upload");
-  }
+  const originalName = req.file.originalname || "upload";
 
   // Dimensions + tiny blur preview for blur-up loading (raster images only).
   const imageMeta = await buildImageMeta(req.file.path, req.file.mimetype);
@@ -25,7 +23,7 @@ export const uploadMedia = asyncHandler(async (req, res) => {
     mimeType: req.file.mimetype,
     size: req.file.size,
     altText: String(req.body?.altText ?? "").trim(),
-    caption,
+    caption: caption || originalName,
     ...imageMeta,
   });
 

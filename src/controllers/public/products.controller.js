@@ -28,6 +28,7 @@ export const listProducts = asyncHandler(async (req, res) => {
         { path: "coverImage" },
         { path: "logo" },
         { path: "keyFeatures.image" },
+      { path: "keyFeatures.images" },
       ])
       .lean(),
     Product.countDocuments(filter),
@@ -44,11 +45,13 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
       { path: "coverImage" },
       { path: "logo" },
       { path: "keyFeatures.image" },
+      { path: "keyFeatures.images" },
       { path: "supportingMachine.images" },
       {
         path: "relatedIndustries",
         match: publishedMatch,
         select: "title slug coverImage headline seo",
+        populate: [{ path: "coverImage" }],
       },
       {
         path: "relatedBlogs",

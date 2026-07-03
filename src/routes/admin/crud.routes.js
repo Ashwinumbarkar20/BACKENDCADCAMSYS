@@ -103,6 +103,7 @@ mountCrud(adminCrudRouter, "products", Product, {
     { path: "coverImage" },
     { path: "logo" },
     { path: "keyFeatures.image" },
+    { path: "keyFeatures.images" },
     { path: "supportingMachine.images" },
     { path: "relatedIndustries" },
     { path: "relatedBlogs" },
