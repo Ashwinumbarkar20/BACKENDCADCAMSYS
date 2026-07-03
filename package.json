@@ -13,7 +13,8 @@
     "seed:catalog": "node src/scripts/seedCatalog.js",
     "cleanup:demo": "node src/scripts/cleanupDemo.js",
     "backfill:blur": "node src/scripts/backfillBlur.js",
-    "check:media": "node src/scripts/checkMediaFiles.js"
+    "check:media": "node src/scripts/checkMediaFiles.js",
+    "repair:industry-covers": "node src/scripts/repairIndustryCovers.js"
   },
   "keywords": [],
   "author": "",
