@@ -17,7 +17,7 @@ export const listCaseStudies = asyncHandler(async (req, res) => {
 
   const [items, total] = await Promise.all([
     CaseStudy.find(filter)
-      .select("title slug customerName customerLogo industry seo publishedAt")
+      .select("title slug customerName customerLogo industry challenge seo publishedAt")
       .sort(sort)
       .skip(skip)
       .limit(limit)
