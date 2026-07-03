@@ -1,5 +1,8 @@
 node_modules
 .env
+
+# User uploads live on the server disk only (Hostinger data/uploads bind mount).
+# Never commit real upload files — only .gitkeep placeholders.
 uploads/*
 !uploads/.gitkeep
 data/uploads/*
