@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 
 import { env } from "./config/env.js";
+import { getUploadDir, UPLOAD_PUBLIC_PATH } from "./config/uploads.js";
 import { adminCors, publicCors } from "./middlewares/cors.js";
 import { authRouter } from "./routes/auth.routes.js";
 import { publicGlobalRouter } from "./routes/public/global.routes.js";
@@ -57,8 +58,8 @@ export function createApp() {
   // timestamped names, so they can be cached aggressively by the browser and by
   // next/image's optimizer — cutting repeat image loads on the public site.
   app.use(
-    `/${env.UPLOAD_DIR}`,
-    express.static(env.UPLOAD_DIR, { maxAge: "30d", etag: true, lastModified: true }),
+    `/${UPLOAD_PUBLIC_PATH}`,
+    express.static(getUploadDir(), { maxAge: "30d", etag: true, lastModified: true }),
   );
 
   // Static assets shipped with the backend (e.g. the tracker.js snippet served

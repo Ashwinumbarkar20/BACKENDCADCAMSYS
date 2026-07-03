@@ -4,6 +4,7 @@ import { Media } from "../models/Media.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { buildImageMeta } from "../utils/imageMeta.js";
 import { created, ok, fail } from "../utils/apiResponse.js";
+import { getUploadDir, uploadFilePathFromUrl } from "../config/uploads.js";
 
 export const uploadMedia = asyncHandler(async (req, res) => {
   if (!req.file) return fail(res, 400, "UPLOAD_MISSING", "No file uploaded");
@@ -53,7 +54,7 @@ export const deleteMedia = asyncHandler(async (req, res) => {
   const doc = await Media.findById(req.params.id);
   if (!doc) return fail(res, 404, "NOT_FOUND", "Media not found");
 
-  const filePath = path.resolve(process.cwd(), doc.url.replace(/^\//, ""));
+  const filePath = uploadFilePathFromUrl(doc.url);
   await Media.deleteOne({ _id: doc._id });
   await fs.unlink(filePath).catch(() => {});
 

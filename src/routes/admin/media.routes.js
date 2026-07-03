@@ -3,12 +3,13 @@ import multer from "multer";
 import path from "node:path";
 import fs from "node:fs";
 import { env } from "../../config/env.js";
+import { ensureUploadDir, getUploadDir, publicUploadUrl } from "../../config/uploads.js";
 import { uploadMedia, listMedia, getMediaById, deleteMedia } from "../../controllers/media.controller.js";
 import { requireOwner } from "../../middlewares/permissions.js";
 
 export const adminMediaRouter = Router();
 
-if (!fs.existsSync(env.UPLOAD_DIR)) fs.mkdirSync(env.UPLOAD_DIR, { recursive: true });
+ensureUploadDir();
 
 const ALLOWED_MIME = new Set([
   "image/jpeg",
@@ -29,7 +30,7 @@ const SAFE_EXT = new Set([
 ]);
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, env.UPLOAD_DIR),
+  destination: (_req, _file, cb) => cb(null, getUploadDir()),
   filename: (_req, file, cb) => {
     const safeOriginal = path.basename(file.originalname || "");
     const ext = path.extname(safeOriginal).toLowerCase();
@@ -50,20 +51,26 @@ const upload = multer({
   },
 });
 
-// Upload and get-by-id stay open to any logged-in user — content editors need
-// to upload images inline (MediaPicker) and the picker resolves IDs to URLs.
 adminMediaRouter.post(
   "/media/upload",
   upload.single("file"),
   (req, res, next) => {
-    if (!req.file) return res.status(400).json({ success: false, error: { code: "NO_FILE", message: "No file uploaded" } });
-    req.file.publicUrl = `/${env.UPLOAD_DIR}/${req.file.filename}`.replaceAll("\\", "/");
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: { code: "NO_FILE", message: "No file uploaded" } });
+    }
+    const diskPath = path.join(getUploadDir(), req.file.filename);
+    if (!fs.existsSync(diskPath)) {
+      return res.status(500).json({
+        success: false,
+        error: { code: "UPLOAD_WRITE_FAILED", message: "File was not saved to disk. Check UPLOAD_DIR on the server." },
+      });
+    }
+    req.file.publicUrl = publicUploadUrl(req.file.filename);
     next();
   },
   uploadMedia,
 );
 adminMediaRouter.get("/media/:id", getMediaById);
 
-// Library browse + delete are owner-only.
 adminMediaRouter.get("/media", requireOwner, listMedia);
 adminMediaRouter.delete("/media/:id", requireOwner, deleteMedia);

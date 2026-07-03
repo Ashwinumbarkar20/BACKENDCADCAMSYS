@@ -21,7 +21,7 @@ export const env = {
   JWT_SECRET: requireInProd("JWT_SECRET", process.env.JWT_SECRET ?? "dev_change_me"),
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? "7d",
 
-  PUBLIC_ORIGINS: (process.env.PUBLIC_ORIGINS ?? "http://localhost:3000,http://localhost:3001,http://localhost:5173,https://cadcamsys.com,https://www.cadcamsys.com,https://api.cadcamsys.com")
+  PUBLIC_ORIGINS: (process.env.PUBLIC_ORIGINS ?? "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173,https://cadcamsys.com,https://www.cadcamsys.com,https://api.cadcamsys.com,https://headless-cms-zeta-three.vercel.app")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean),

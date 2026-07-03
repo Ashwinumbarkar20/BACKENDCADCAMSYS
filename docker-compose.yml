@@ -32,6 +32,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${PORT:-4000}
+      UPLOAD_DIR: /app/uploads
     # Bind-mount a folder on the Hostinger VPS disk (your 50 GB storage).
     # Files in ./data/uploads survive container rebuilds and redeploys.
     volumes:

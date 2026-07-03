@@ -5,10 +5,10 @@
  *   node src/scripts/checkMediaFiles.js
  */
 import "dotenv/config";
-import fs from "node:fs";
-import path from "node:path";
 import { connectDb } from "../config/db.js";
 import { Media } from "../models/Media.js";
+import { uploadFilePathFromUrl } from "../config/uploads.js";
+import fs from "node:fs";
 
 await connectDb();
 
@@ -16,7 +16,7 @@ const docs = await Media.find({}).select("url originalName fileName").lean();
 let missing = 0;
 
 for (const doc of docs) {
-  const filePath = path.resolve(process.cwd(), String(doc.url || "").replace(/^\//, ""));
+  const filePath = uploadFilePathFromUrl(doc.url);
   if (!fs.existsSync(filePath)) {
     missing += 1;
     console.log(`MISSING  ${doc.url}  (${doc.originalName || doc.fileName})`);
