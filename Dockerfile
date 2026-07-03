@@ -17,9 +17,13 @@ RUN addgroup -S nodejs && adduser -S nodeuser -G nodejs
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./package.json
 COPY src ./src
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+# Seed/demo media committed in git — synced into UPLOAD_DIR on container start.
+COPY uploads ./uploads-bundled
 
-# uploads directory (bind mount or volume in production)
-RUN mkdir -p /app/uploads && chown -R nodeuser:nodejs /app
+RUN mkdir -p /app/uploads \
+  && chmod +x /app/docker-entrypoint.sh \
+  && chown -R nodeuser:nodejs /app
 
 USER nodeuser
 
@@ -29,5 +33,5 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||4000)+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-CMD ["node", "src/server.js"]
+CMD ["./docker-entrypoint.sh"]
 
