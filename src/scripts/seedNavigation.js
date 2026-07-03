@@ -44,6 +44,7 @@ const items = [
       {
         label: "3D CAM Solutions",
         url: "/solutions/3d-cam-solutions",
+        children: [
           { label: "Almacam Space Cut", url: "/products/almacam-space-cut" },
           { label: "Almacam Cube", url: "/products/almacam-cube" },
         ],

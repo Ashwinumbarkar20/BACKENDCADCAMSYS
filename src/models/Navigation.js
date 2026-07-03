@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 
-const NavItemSchema = new mongoose.Schema({ label: { type: String, required: true }, url: { type: String, required: true } }, { _id: false });
+const NavItemSchema = new mongoose.Schema(
+  {
+    label: { type: String, required: true },
+    url: { type: String, required: true },
+    linkType: { type: String, default: "" },
+    linkSlug: { type: String, default: "" },
+  },
+  { _id: false },
+);
 NavItemSchema.add({ children: { type: [NavItemSchema], default: [] } });
 
 const NavigationSchema = new mongoose.Schema(
