@@ -6,7 +6,18 @@ function normalizeBody(body) {
   return sanitizeAdminPayload(body);
 }
 
-export function createCrudControllers(Model, { defaultSort = "-updatedAt", populate = [] } = {}) {
+function applyProductSolutionUnset(doc, body) {
+  if (!doc || doc.constructor.modelName !== "Product") return;
+  if ("solution" in body && !body.solution) {
+    doc.set("solution", undefined);
+    delete body.solution;
+  }
+}
+
+export function createCrudControllers(
+  Model,
+  { defaultSort = "-updatedAt", populate = [], afterCreate, afterUpdate, beforeDelete } = {},
+) {
   const list = asyncHandler(async (req, res) => {
     const page = Math.max(1, Number(req.query.page ?? 1));
     const limit = Math.min(100, Math.max(1, Number(req.query.limit ?? 20)));
@@ -24,7 +35,9 @@ export function createCrudControllers(Model, { defaultSort = "-updatedAt", popul
   });
 
   const createOne = asyncHandler(async (req, res) => {
-    const doc = await Model.create(normalizeBody(req.body));
+    const body = normalizeBody(req.body);
+    const doc = await Model.create(body);
+    if (afterCreate) await afterCreate(doc);
     return created(res, doc);
   });
 
@@ -39,13 +52,17 @@ export function createCrudControllers(Model, { defaultSort = "-updatedAt", popul
     const doc = await Model.findById(req.params.id);
     if (!doc) return ok(res, null);
 
-    doc.set(normalizeBody(req.body));
+    const body = normalizeBody(req.body);
+    applyProductSolutionUnset(doc, body);
+    doc.set(body);
     await doc.save();
+    if (afterUpdate) await afterUpdate(doc);
     for (const p of populate) await doc.populate(p);
     return ok(res, doc);
   });
 
   const removeOne = asyncHandler(async (req, res) => {
+    if (beforeDelete) await beforeDelete(req.params.id);
     await Model.findByIdAndDelete(req.params.id);
     return ok(res, { deleted: true });
   });

@@ -30,17 +30,5 @@ const SolutionSchema = new mongoose.Schema(
 SolutionSchema.plugin(publishablePlugin);
 SolutionSchema.index({ status: 1, publishedAt: -1 });
 
-SolutionSchema.post("save", async function syncSolutionProducts() {
-  const Product = mongoose.model("Product");
-  const productIds = (this.products || []).map((id) => String(id));
-  if (productIds.length) {
-    await Product.updateMany({ _id: { $in: productIds } }, { $set: { solution: this._id } });
-  }
-  await Product.updateMany(
-    { solution: this._id, ...(productIds.length ? { _id: { $nin: productIds } } : {}) },
-    { $unset: { solution: "" } },
-  );
-});
-
 export const Solution = mongoose.model("Solution", SolutionSchema);
 

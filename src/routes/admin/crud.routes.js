@@ -24,6 +24,11 @@ import {
   PdfDownloadRequest,
 } from "../../models/index.js";
 import {
+  syncProductSolutionLink,
+  syncSolutionProductsLink,
+  syncProductToSolution,
+} from "../../services/productSolutionSync.js";
+import {
   createUserAdmin,
   listUsersAdmin,
   getUserAdmin,
@@ -87,6 +92,8 @@ mountCrud(adminCrudRouter, "solutions", Solution, {
     { path: "caseStudies" },
     { path: "testimonials" },
   ],
+  afterCreate: async (doc) => syncSolutionProductsLink(doc._id, doc.products),
+  afterUpdate: async (doc) => syncSolutionProductsLink(doc._id, doc.products),
 });
 mountCrud(adminCrudRouter, "product-categories", ProductCategory);
 mountCrud(adminCrudRouter, "products", Product, {
@@ -101,6 +108,9 @@ mountCrud(adminCrudRouter, "products", Product, {
     { path: "relatedCaseStudies" },
     { path: "mediaSection.pdfs.file" },
   ],
+  afterCreate: async (doc) => syncProductSolutionLink(doc._id, doc.solution),
+  afterUpdate: async (doc) => syncProductSolutionLink(doc._id, doc.solution),
+  beforeDelete: async (id) => syncProductToSolution(id, null),
 });
 mountCrud(adminCrudRouter, "industries", Industry, {
   populate: [{ path: "coverImage" }, { path: "pdfs.file" }],

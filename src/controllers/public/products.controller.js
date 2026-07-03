@@ -62,6 +62,7 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
         path: "relatedCaseStudies",
         match: publishedMatch,
         select: "title slug customerName customerLogo industry seo",
+        populate: [{ path: "customerLogo" }],
       },
       { path: "mediaSection.pdfs.file" },
       { path: "seo.ogImage" },
