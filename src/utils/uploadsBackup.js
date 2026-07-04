@@ -139,3 +139,24 @@ export function syncUploadsWithBackup(backupDir) {
 
   return { uploadDir, backupDir: resolvedBackup, restored, backedUp };
 }
+
+/** Owner diagnostics — where files live and how many exist on disk. */
+export function getUploadStorageDiagnostics() {
+  const uploadDir = getUploadDir();
+  const backupDir = getBackupDir();
+  const legacyDirs = getLegacySourceDirs();
+
+  const countIn = (dir) => (dir && fs.existsSync(dir) ? listFiles(dir).length : 0);
+
+  return {
+    uploadDir,
+    uploadDirAbsolute: path.isAbsolute(uploadDir),
+    uploadFileCount: countIn(uploadDir),
+    backupDir: backupDir || null,
+    backupFileCount: countIn(backupDir),
+    legacyDirs,
+    legacyFileCounts: Object.fromEntries(legacyDirs.map((d) => [d, countIn(d)])),
+    uploadsBackupEnv: Boolean(process.env.UPLOADS_BACKUP_DIR?.trim()),
+    uploadsBindPathHint: process.env.UPLOADS_BIND_PATH?.trim() || "(use Docker volume uploads_data or set UPLOADS_BIND_PATH)",
+  };
+}

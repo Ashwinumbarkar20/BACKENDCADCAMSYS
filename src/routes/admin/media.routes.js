@@ -4,7 +4,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { env } from "../../config/env.js";
 import { ensureUploadDir, getUploadDir, publicUploadUrl } from "../../config/uploads.js";
-import { uploadMedia, listMedia, getMediaById, deleteMedia } from "../../controllers/media.controller.js";
+import { uploadMedia, listMedia, getMediaById, deleteMedia, getMediaStorage } from "../../controllers/media.controller.js";
 import { requireOwner } from "../../middlewares/permissions.js";
 
 export const adminMediaRouter = Router();
@@ -70,6 +70,7 @@ adminMediaRouter.post(
   },
   uploadMedia,
 );
+adminMediaRouter.get("/media/storage", requireOwner, getMediaStorage);
 adminMediaRouter.get("/media/:id", getMediaById);
 
 adminMediaRouter.get("/media", requireOwner, listMedia);

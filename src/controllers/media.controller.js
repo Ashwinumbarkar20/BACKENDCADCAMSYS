@@ -6,7 +6,7 @@ import { buildImageMeta } from "../utils/imageMeta.js";
 import { created, ok, fail } from "../utils/apiResponse.js";
 import { getUploadDir, uploadFilePathFromUrl } from "../config/uploads.js";
 import { withMediaFileStatus } from "../utils/mediaFileStatus.js";
-import { backupFileByName } from "../utils/uploadsBackup.js";
+import { backupFileByName, getUploadStorageDiagnostics } from "../utils/uploadsBackup.js";
 
 export const uploadMedia = asyncHandler(async (req, res) => {
   if (!req.file) return fail(res, 400, "UPLOAD_MISSING", "No file uploaded");
@@ -50,6 +50,10 @@ export const getMediaById = asyncHandler(async (req, res) => {
   const doc = await Media.findById(req.params.id).lean();
   if (!doc) return fail(res, 404, "NOT_FOUND", "Media not found");
   return ok(res, withMediaFileStatus(doc));
+});
+
+export const getMediaStorage = asyncHandler(async (_req, res) => {
+  return ok(res, getUploadStorageDiagnostics());
 });
 
 export const deleteMedia = asyncHandler(async (req, res) => {

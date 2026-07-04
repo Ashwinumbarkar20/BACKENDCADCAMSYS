@@ -1,8 +1,8 @@
 import { env } from "./config/env.js";
 import { createApp } from "./app.js";
 import { connectDb } from "./config/db.js";
-import { ensureUploadDir } from "./config/uploads.js";
-import { recoverAllUploadSources } from "./utils/uploadsBackup.js";
+import { ensureUploadDir, getUploadDir } from "./config/uploads.js";
+import { recoverAllUploadSources, getUploadStorageDiagnostics } from "./utils/uploadsBackup.js";
 import { ensureOwnerUser, upgradeLegacyOwners } from "./services/bootstrapAdmin.js";
 
 async function main() {
@@ -22,6 +22,20 @@ async function main() {
   if (recovery.legacySources.length > 0) {
     // eslint-disable-next-line no-console
     console.log(`[uploads] legacy sources scanned: ${recovery.legacySources.join(", ")}`);
+  }
+
+  const diag = getUploadStorageDiagnostics();
+  if (env.NODE_ENV === "production" && !diag.uploadDirAbsolute) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[uploads] WARNING: UPLOAD_DIR is not an absolute path. Set UPLOAD_DIR to a folder OUTSIDE the git repo on Hostinger.",
+    );
+  }
+  if (env.NODE_ENV === "production" && diag.uploadFileCount === 0 && diag.backupFileCount === 0) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[uploads] WARNING: upload and backup folders are empty. Set UPLOADS_BIND_PATH in .env to a persistent host path.",
+    );
   }
 
   await connectDb();

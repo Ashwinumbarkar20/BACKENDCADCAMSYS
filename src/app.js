@@ -6,6 +6,7 @@ import compression from "compression";
 
 import { env } from "./config/env.js";
 import { getUploadDir, UPLOAD_PUBLIC_PATH } from "./config/uploads.js";
+import { getUploadStorageDiagnostics } from "./utils/uploadsBackup.js";
 import { adminCors, publicCors } from "./middlewares/cors.js";
 import { authRouter } from "./routes/auth.routes.js";
 import { publicGlobalRouter } from "./routes/public/global.routes.js";
@@ -67,15 +68,18 @@ export function createApp() {
   app.use(express.static("public", { maxAge: "1h" }));
 
   // Lightweight liveness probe (used by container healthcheck and reverse proxy).
-  app.get("/health", (_req, res) =>
-    res.json({
+  app.get("/health", (_req, res) => {
+    const storage = getUploadStorageDiagnostics();
+    return res.json({
       status: "ok",
-      version: "1.0.3",
+      version: "1.0.4",
       deployTest: "media-persistence-check",
-      uploadsBackup: Boolean(process.env.UPLOADS_BACKUP_DIR?.trim()),
+      uploadsBackup: storage.uploadsBackupEnv,
+      uploadFileCount: storage.uploadFileCount,
+      backupFileCount: storage.backupFileCount,
       uptime: process.uptime(),
-    }),
-  );
+    });
+  });
 
   // SEO endpoints served at the app root so crawlers find them at /sitemap.xml + /robots.txt.
   app.get("/sitemap.xml", sitemapXml);
