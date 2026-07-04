@@ -7,6 +7,7 @@ import compression from "compression";
 import { env } from "./config/env.js";
 import { getUploadDir, UPLOAD_PUBLIC_PATH } from "./config/uploads.js";
 import { getUploadStorageDiagnostics } from "./utils/uploadsBackup.js";
+import { getEmailDiagnostics } from "./services/email.service.js";
 import { adminCors, publicCors } from "./middlewares/cors.js";
 import { authRouter } from "./routes/auth.routes.js";
 import { publicGlobalRouter } from "./routes/public/global.routes.js";
@@ -72,8 +73,9 @@ export function createApp() {
     const storage = getUploadStorageDiagnostics();
     return res.json({
       status: "ok",
-      version: "1.0.7",
-      deployTest: "media-persistence-verify-v3",
+      version: "1.0.8",
+      deployTest: "faq-email-diagnostics",
+      email: getEmailDiagnostics(),
       persistentStorage: storage.persistentStorage,
       hostingerDetected: storage.hostingerDetected,
       uploadDir: storage.uploadDir,

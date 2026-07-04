@@ -122,7 +122,7 @@ export const bookConsultation = asyncHandler(async (req, res) => {
   notify(
     sendLeadConfirmation({
       to: payload.email,
-      kind: "consultation request",
+      kind: "appointment booking",
       name: payload.name,
     }),
   );
@@ -209,6 +209,13 @@ export const requestPdfDownload = asyncHandler(async (req, res) => {
         : "PDF download",
       fields: req.body,
       replyTo: req.body.email,
+    }),
+  );
+  notify(
+    sendLeadConfirmation({
+      to: req.body.email,
+      kind: "download request",
+      name: req.body.name,
     }),
   );
   return created(res, doc);

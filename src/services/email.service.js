@@ -48,6 +48,28 @@ const ADMIN_TO = (process.env.CONTACT_TO_EMAIL || process.env.EMAIL_ADMIN_TO || 
   .map((s) => s.trim())
   .filter(Boolean);
 
+function maskEmail(email) {
+  const [user, domain] = String(email).split("@");
+  if (!domain) return "(invalid)";
+  const shown = user.length <= 2 ? user[0] : `${user.slice(0, 2)}***`;
+  return `${shown}@${domain}`;
+}
+
+/** Safe summary for /health — confirms SMTP + owner inbox without secrets. */
+export function getEmailDiagnostics() {
+  const smtpConfigured = Boolean(process.env.SMTP_HOST?.trim());
+  const hasAuth = Boolean(process.env.SMTP_USER?.trim() && process.env.SMTP_PASSWORD?.trim());
+  return {
+    smtpConfigured,
+    smtpHost: smtpConfigured ? process.env.SMTP_HOST.trim() : null,
+    smtpAuth: hasAuth,
+    adminRecipients: ADMIN_TO.map(maskEmail),
+    adminRecipientCount: ADMIN_TO.length,
+    fromAddress: DEFAULT_FROM,
+    leadEmailReady: smtpConfigured && hasAuth && ADMIN_TO.length > 0,
+  };
+}
+
 export function escapeHtml(str) {
   return String(str ?? "")
     .replace(/&/g, "&amp;")
@@ -104,10 +126,31 @@ export async function sendMail({ to, subject, html, text, replyTo }) {
  * subject so the recipient can route in their inbox.
  */
 export async function notifyAdminLead({ kind, fields, replyTo }) {
-  if (ADMIN_TO.length === 0) return { sent: false, skipped: "no-admin-recipient" };
+  if (ADMIN_TO.length === 0) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[email] Lead saved but no admin inbox — set CONTACT_TO_EMAIL or ADMIN_EMAIL in env (${kind}).`,
+    );
+    return { sent: false, skipped: "no-admin-recipient" };
+  }
   const subject = `[Cadcamsys] New ${kind}`;
+  const text = `New ${kind}\n\n${Object.entries(fields)
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`)
+    .join("\n")}`;
   const html = `<h2 style="font-family:Arial,sans-serif;">New ${escapeHtml(kind)}</h2>${fieldsTable(fields)}<p style="font-family:Arial,sans-serif;font-size:12px;color:#666;">Submitted via cadcamsys.com</p>`;
-  return sendMail({ to: ADMIN_TO, subject, html, replyTo });
+  const result = await sendMail({ to: ADMIN_TO, subject, html, text, replyTo });
+  if (result.sent) {
+    // eslint-disable-next-line no-console
+    console.log(`[email] Owner notified (${kind}) → ${ADMIN_TO.join(", ")}`);
+  } else if (result.skipped === "no-smtp-configured") {
+    // eslint-disable-next-line no-console
+    console.warn(`[email] Lead saved but SMTP not configured — set SMTP_HOST, SMTP_USER, SMTP_PASSWORD (${kind}).`);
+  } else if (result.error) {
+    // eslint-disable-next-line no-console
+    console.error(`[email] Owner notify failed (${kind}): ${result.error}`);
+  }
+  return result;
 }
 
 /**
