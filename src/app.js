@@ -72,11 +72,14 @@ export function createApp() {
     const storage = getUploadStorageDiagnostics();
     return res.json({
       status: "ok",
-      version: "1.0.6",
-      deployTest: "hostinger-persistent-uploads",
+      version: "1.0.7",
+      deployTest: "media-persistence-verify-v3",
       persistentStorage: storage.persistentStorage,
       hostingerDetected: storage.hostingerDetected,
+      uploadDir: storage.uploadDir,
+      projectUploadDir: storage.projectUploadDir,
       uploadsBackup: storage.uploadsBackupEnv,
+      backupDir: storage.backupDir,
       uploadFileCount: storage.uploadFileCount,
       backupFileCount: storage.backupFileCount,
       uptime: process.uptime(),
