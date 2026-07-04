@@ -1,6 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import { getUploadDir } from "../config/uploads.js";
+import {
+  getUploadDir,
+  getProjectUploadDir,
+  getPersistentBackupDir,
+  isPersistentStorageEnabled,
+} from "../config/uploads.js";
 
 function listFiles(dir) {
   if (!dir || !fs.existsSync(dir)) return [];
@@ -16,7 +21,16 @@ function resolveDir(dir) {
 }
 
 export function getBackupDir() {
-  return resolveDir(process.env.UPLOADS_BACKUP_DIR?.trim());
+  const explicit = process.env.UPLOADS_BACKUP_DIR?.trim();
+  if (explicit) return resolveDir(explicit);
+  if (
+    process.env.NODE_ENV === "production" ||
+    process.env.HOSTINGER === "1" ||
+    /\/nodejs\/?$/i.test(process.cwd())
+  ) {
+    return getPersistentBackupDir();
+  }
+  return null;
 }
 
 /** Extra folders to scan on startup (comma-separated env or defaults). */
@@ -26,7 +40,13 @@ export function getLegacySourceDirs() {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const defaults = ["/app/uploads-legacy", "/app/uploads-bundled", "data/uploads", "uploads"];
+  const defaults = [
+    "/app/uploads-legacy",
+    "/app/uploads-bundled",
+    "data/uploads",
+    getProjectUploadDir(),
+    "uploads",
+  ];
   const seen = new Set();
   const out = [];
 
@@ -150,13 +170,16 @@ export function getUploadStorageDiagnostics() {
 
   return {
     uploadDir,
+    projectUploadDir: getProjectUploadDir(),
     uploadDirAbsolute: path.isAbsolute(uploadDir),
+    persistentStorage: isPersistentStorageEnabled(),
     uploadFileCount: countIn(uploadDir),
     backupDir: backupDir || null,
     backupFileCount: countIn(backupDir),
     legacyDirs,
     legacyFileCounts: Object.fromEntries(legacyDirs.map((d) => [d, countIn(d)])),
-    uploadsBackupEnv: Boolean(process.env.UPLOADS_BACKUP_DIR?.trim()),
-    uploadsBindPathHint: process.env.UPLOADS_BIND_PATH?.trim() || "(use Docker volume uploads_data or set UPLOADS_BIND_PATH)",
+    uploadsBackupEnv: Boolean(getBackupDir()),
+    hostingerDetected: /\/nodejs\/?$/i.test(process.cwd()) || process.env.HOSTINGER === "1",
+    uploadsBindPathHint: process.env.UPLOADS_BIND_PATH?.trim() || "(Docker only)",
   };
 }
