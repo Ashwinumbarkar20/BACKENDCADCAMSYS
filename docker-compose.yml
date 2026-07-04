@@ -33,12 +33,14 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${PORT:-4000}
       UPLOAD_DIR: /app/uploads
+      UPLOADS_BACKUP_DIR: ${UPLOADS_BACKUP_DIR:-/app/uploads-backup}
     # Media files MUST survive `docker compose up --build`.
     # - Default: Docker named volume `uploads_data` (not deleted when you git pull).
     # - Production: set UPLOADS_BIND_PATH to an absolute folder OUTSIDE the git repo, e.g.
     #   /home/youruser/cadcamsys-persistent/uploads
     volumes:
       - ${UPLOADS_BIND_PATH:-uploads_data}:/app/uploads
+      - ${UPLOADS_BACKUP_BIND_PATH:-uploads_backup_data}:/app/uploads-backup
     ports:
       - "${BACKEND_PORT:-4000}:4000"
 
@@ -58,3 +60,4 @@ services:
 volumes:
   mongo_data:
   uploads_data:
+  uploads_backup_data:

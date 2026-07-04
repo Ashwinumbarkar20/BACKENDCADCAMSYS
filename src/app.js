@@ -67,7 +67,14 @@ export function createApp() {
   app.use(express.static("public", { maxAge: "1h" }));
 
   // Lightweight liveness probe (used by container healthcheck and reverse proxy).
-  app.get("/health", (_req, res) => res.json({ status: "ok", uptime: process.uptime() }));
+  app.get("/health", (_req, res) =>
+    res.json({
+      status: "ok",
+      version: "1.0.1",
+      uploadsBackup: Boolean(process.env.UPLOADS_BACKUP_DIR?.trim()),
+      uptime: process.uptime(),
+    }),
+  );
 
   // SEO endpoints served at the app root so crawlers find them at /sitemap.xml + /robots.txt.
   app.get("/sitemap.xml", sitemapXml);

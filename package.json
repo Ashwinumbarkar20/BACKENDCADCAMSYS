@@ -14,6 +14,7 @@
     "cleanup:demo": "node src/scripts/cleanupDemo.js",
     "backfill:blur": "node src/scripts/backfillBlur.js",
     "check:media": "node src/scripts/checkMediaFiles.js",
+    "backup:uploads": "node src/scripts/backupUploads.js",
     "repair:industry-covers": "node src/scripts/repairIndustryCovers.js"
   },
   "keywords": [],
