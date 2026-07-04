@@ -33,10 +33,12 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${PORT:-4000}
       UPLOAD_DIR: /app/uploads
-    # Bind-mount a folder on the Hostinger VPS disk (your 50 GB storage).
-    # Files in ./data/uploads survive container rebuilds and redeploys.
+    # Media files MUST survive `docker compose up --build`.
+    # - Default: Docker named volume `uploads_data` (not deleted when you git pull).
+    # - Production: set UPLOADS_BIND_PATH to an absolute folder OUTSIDE the git repo, e.g.
+    #   /home/youruser/cadcamsys-persistent/uploads
     volumes:
-      - ${UPLOADS_BIND_PATH:-./data/uploads}:/app/uploads
+      - ${UPLOADS_BIND_PATH:-uploads_data}:/app/uploads
     ports:
       - "${BACKEND_PORT:-4000}:4000"
 
@@ -55,3 +57,4 @@ services:
 
 volumes:
   mongo_data:
+  uploads_data:
