@@ -6,6 +6,7 @@ const ContactInfoSchema = new mongoose.Schema(
     email: { type: String, default: "" },
     phone: { type: String, default: "" },
     address: { type: String, default: "" },
+    mapEmbedUrl: { type: String, default: "" },
   },
   { _id: false }
 );
