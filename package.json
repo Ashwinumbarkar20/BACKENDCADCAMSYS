@@ -15,6 +15,7 @@
     "backfill:blur": "node src/scripts/backfillBlur.js",
     "check:media": "node src/scripts/checkMediaFiles.js",
     "backup:uploads": "node src/scripts/backupUploads.js",
+    "recover:uploads": "node src/scripts/recoverUploads.js",
     "repair:industry-covers": "node src/scripts/repairIndustryCovers.js"
   },
   "keywords": [],

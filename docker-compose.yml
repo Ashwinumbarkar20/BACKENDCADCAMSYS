@@ -41,6 +41,8 @@ services:
     volumes:
       - ${UPLOADS_BIND_PATH:-uploads_data}:/app/uploads
       - ${UPLOADS_BACKUP_BIND_PATH:-uploads_backup_data}:/app/uploads-backup
+      # Old uploads often remain here after volume changes — read-only recovery source.
+      - ${UPLOADS_LEGACY_BIND_PATH:-./data/uploads}:/app/uploads-legacy:ro
     ports:
       - "${BACKEND_PORT:-4000}:4000"
 

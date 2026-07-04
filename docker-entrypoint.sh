@@ -16,10 +16,23 @@ if [ -d /app/uploads-bundled ]; then
   done
 fi
 
-# Persistent backup folder — restore missing uploads, then back up new files.
-# Set UPLOADS_BACKUP_DIR in .env (mount a host path in docker-compose).
+# On start: restore from /app/uploads-legacy (old host folder) and backup volume.
 if [ -n "$UPLOADS_BACKUP_DIR" ]; then
   mkdir -p "$UPLOADS_BACKUP_DIR"
+fi
+
+if [ -d /app/uploads-legacy ]; then
+  for f in /app/uploads-legacy/*; do
+    [ -f "$f" ] || continue
+    base=$(basename "$f")
+    if [ ! -f "$UPLOAD_DIR/$base" ]; then
+      cp "$f" "$UPLOAD_DIR/$base"
+      echo "[uploads] restored from legacy: $base"
+    fi
+  done
+fi
+
+if [ -n "$UPLOADS_BACKUP_DIR" ]; then
   for f in "$UPLOADS_BACKUP_DIR"/*; do
     [ -f "$f" ] || continue
     base=$(basename "$f")

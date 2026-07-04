@@ -70,7 +70,7 @@ export function createApp() {
   app.get("/health", (_req, res) =>
     res.json({
       status: "ok",
-      version: "1.0.1",
+      version: "1.0.2",
       uploadsBackup: Boolean(process.env.UPLOADS_BACKUP_DIR?.trim()),
       uptime: process.uptime(),
     }),

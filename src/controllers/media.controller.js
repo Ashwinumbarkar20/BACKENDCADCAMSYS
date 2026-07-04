@@ -6,6 +6,7 @@ import { buildImageMeta } from "../utils/imageMeta.js";
 import { created, ok, fail } from "../utils/apiResponse.js";
 import { getUploadDir, uploadFilePathFromUrl } from "../config/uploads.js";
 import { withMediaFileStatus } from "../utils/mediaFileStatus.js";
+import { backupFileByName } from "../utils/uploadsBackup.js";
 
 export const uploadMedia = asyncHandler(async (req, res) => {
   if (!req.file) return fail(res, 400, "UPLOAD_MISSING", "No file uploaded");
@@ -26,6 +27,8 @@ export const uploadMedia = asyncHandler(async (req, res) => {
     caption: caption || originalName,
     ...imageMeta,
   });
+
+  backupFileByName(req.file.filename);
 
   return created(res, withMediaFileStatus(doc.toObject()));
 });
