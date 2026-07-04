@@ -13,6 +13,12 @@ import {
   PageView,
 } from "../models/index.js";
 import { notifyAdminLead, sendLeadConfirmation } from "../services/email.service.js";
+import {
+  assertSlotAvailable,
+  preferredDateFromYmd,
+  getSlotsForDate,
+  getUpcomingAvailability,
+} from "../services/appointmentSlots.js";
 import { readCookie, computeVisitorScore, VISITOR_COOKIE } from "../utils/track.js";
 
 /**
@@ -85,23 +91,53 @@ export const submitContact = asyncHandler(async (req, res) => {
 });
 
 export const bookConsultation = asyncHandler(async (req, res) => {
-  const doc = await ConsultationBooking.create(req.body);
+  if (req.body.botField) {
+    return created(res, { received: true });
+  }
+  delete req.body.botField;
+
+  const { preferredDate: dateYmd, preferredTime, ...rest } = req.body;
+  await assertSlotAvailable(dateYmd, preferredTime);
+
+  const payload = {
+    ...rest,
+    preferredDate: preferredDateFromYmd(dateYmd),
+    preferredTime,
+    sourcePage: rest.sourcePage || "",
+  };
+
+  const doc = await ConsultationBooking.create(payload);
   notify(linkSubmissionToVisitor(req, "consultation", doc._id));
   notify(
     notifyAdminLead({
       kind: "consultation booking",
-      fields: req.body,
-      replyTo: req.body.email,
+      fields: {
+        ...payload,
+        preferredDate: dateYmd,
+        appointment: `${dateYmd} at ${preferredTime} IST`,
+      },
+      replyTo: payload.email,
     }),
   );
   notify(
     sendLeadConfirmation({
-      to: req.body.email,
+      to: payload.email,
       kind: "consultation request",
-      name: req.body.name,
+      name: payload.name,
     }),
   );
   return created(res, doc);
+});
+
+export const getAppointmentSlots = asyncHandler(async (req, res) => {
+  const date = req.query.date;
+  if (date) {
+    const day = await getSlotsForDate(String(date));
+    return res.status(200).json({ success: true, data: day });
+  }
+  const days = Math.min(30, Math.max(1, Number.parseInt(req.query.days ?? "21", 10) || 21));
+  const upcoming = await getUpcomingAvailability(days);
+  return res.status(200).json({ success: true, data: { days: upcoming } });
 });
 
 export const createSupportRequest = asyncHandler(async (req, res) => {

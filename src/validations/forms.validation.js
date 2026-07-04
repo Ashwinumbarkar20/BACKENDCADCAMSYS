@@ -32,8 +32,11 @@ export const consultationBody = z.object({
   company: optShortStr,
   phone: z.string().trim().max(40).optional(),
   consultationType: optShortStr,
-  preferredDate: z.string().datetime().optional(),
+  preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD"),
+  preferredTime: z.enum(["10:00", "11:30", "13:00", "15:00", "17:00"]),
   notes: optStr,
+  sourcePage: optShortStr,
+  botField: z.string().max(200).optional(),
 });
 
 export const supportRequestBody = z.object({

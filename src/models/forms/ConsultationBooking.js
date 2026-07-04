@@ -8,6 +8,8 @@ const ConsultationBookingSchema = new mongoose.Schema(
     phone: { type: String, default: "" },
     consultationType: { type: String, default: "" },
     preferredDate: { type: Date },
+    preferredTime: { type: String, default: "" },
+    sourcePage: { type: String, default: "" },
     notes: { type: String, default: "" },
   },
   { timestamps: true }

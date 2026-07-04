@@ -4,6 +4,7 @@ import {
   applyJob,
   bookConsultation,
   createSupportRequest,
+  getAppointmentSlots,
   requestRoi,
   requestPdfDownload,
   submitContact,
@@ -32,6 +33,7 @@ const formLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+formsRouter.get("/appointment-slots", formLimiter, getAppointmentSlots);
 formsRouter.post("/contact", formLimiter, validate({ body: contactBody }), submitContact);
 formsRouter.post("/book-consultation", formLimiter, validate({ body: consultationBody }), bookConsultation);
 formsRouter.post("/support-request", formLimiter, validate({ body: supportRequestBody }), createSupportRequest);
