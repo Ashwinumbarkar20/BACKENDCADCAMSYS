@@ -62,16 +62,25 @@ export const submitContact = asyncHandler(async (req, res) => {
   }
   delete req.body.botField;
 
-  const doc = await ContactSubmission.create(req.body);
+  const firstName = String(req.body.firstName || "").trim();
+  const lastName = String(req.body.lastName || "").trim();
+  const payload = {
+    ...req.body,
+    firstName,
+    lastName,
+    name: [firstName, lastName].filter(Boolean).join(" ").trim() || String(req.body.name || "").trim(),
+  };
+
+  const doc = await ContactSubmission.create(payload);
   notify(linkSubmissionToVisitor(req, "contact", doc._id));
   notify(
     notifyAdminLead({
       kind: "contact submission",
-      fields: req.body,
-      replyTo: req.body.email,
+      fields: payload,
+      replyTo: payload.email,
     }),
   );
-  notify(sendLeadConfirmation({ to: req.body.email, kind: "message", name: req.body.name }));
+  notify(sendLeadConfirmation({ to: payload.email, kind: "message", name: payload.name }));
   return created(res, doc);
 });
 

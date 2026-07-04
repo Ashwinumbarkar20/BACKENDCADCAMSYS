@@ -13,13 +13,13 @@ export const listProducts = asyncHandler(async (req, res) => {
       relatedIndustries: "objectId",
     },
     searchPaths: ["title", "tagline", "overview"],
-    defaultSort: "title",
+    defaultSort: "sortOrder",
   });
 
   const [items, total] = await Promise.all([
     Product.find(filter)
-      .select("title slug tagline overview coverImage logo seo publishedAt category solution keyFeatures")
-      .sort(sort)
+      .select("title slug tagline overview coverImage logo seo publishedAt category solution keyFeatures sortOrder")
+      .sort({ sortOrder: 1, title: 1 })
       .skip(skip)
       .limit(limit)
       .populate([

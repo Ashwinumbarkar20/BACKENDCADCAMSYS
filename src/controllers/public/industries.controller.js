@@ -13,8 +13,8 @@ export const listIndustries = asyncHandler(async (req, res) => {
 
   const [items, total] = await Promise.all([
     Industry.find(filter)
-      .select("title slug coverImage headline seo publishedAt")
-      .sort(sort)
+      .select("title slug coverImage headline seo publishedAt sortOrder")
+      .sort({ sortOrder: 1, title: 1 })
       .skip(skip)
       .limit(limit)
       .populate([{ path: "coverImage" }])

@@ -5,6 +5,7 @@ export * from "./Settings.js";
 export * from "./Navigation.js";
 export * from "./Footer.js";
 export * from "./HomePage.js";
+export * from "./SolutionsPage.js";
 export * from "./Page.js";
 
 export * from "./Solution.js";

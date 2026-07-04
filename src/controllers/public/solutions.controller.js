@@ -12,13 +12,13 @@ export const listSolutions = asyncHandler(async (req, res) => {
       industries: "objectId",
     },
     searchPaths: ["title", "shortDescription"],
-    defaultSort: "createdAt",
+    defaultSort: "sortOrder",
   });
 
   const [items, total] = await Promise.all([
     Solution.find(filter)
-      .select("title slug shortDescription coverImage seo publishedAt createdAt")
-      .sort(sort)
+      .select("title slug shortDescription coverImage seo publishedAt createdAt sortOrder")
+      .sort({ sortOrder: 1, title: 1 })
       .skip(skip)
       .limit(limit)
       .populate([
@@ -27,7 +27,7 @@ export const listSolutions = asyncHandler(async (req, res) => {
           path: "products",
           match: publishedMatch,
           select: "title slug tagline coverImage seo",
-          options: { sort: { title: 1 } },
+          options: { sort: { sortOrder: 1, title: 1 } },
           populate: [{ path: "coverImage" }],
         },
       ])

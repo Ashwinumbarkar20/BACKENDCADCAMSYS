@@ -14,6 +14,7 @@ const PdfItemSchema = new mongoose.Schema(
 
 const IndustrySchema = new mongoose.Schema(
   {
+    sortOrder: { type: Number, default: 0, index: true },
     title: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     coverImage: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createSingletonControllers } from "../../controllers/admin/singleton.controller.js";
-import { Settings, Navigation, Footer, HomePage } from "../../models/index.js";
+import { Settings, Navigation, Footer, HomePage, SolutionsPage } from "../../models/index.js";
 import { requireOwner } from "../../middlewares/permissions.js";
 
 export const adminSingletonsRouter = Router();
@@ -23,8 +23,21 @@ adminSingletonsRouter.get("/footer", footerCtl.getOne);
 adminSingletonsRouter.put("/footer", footerCtl.updateOne);
 
 const homeCtl = createSingletonControllers(HomePage, {
-  populate: ["hero.image", "hero.videoFile", "trustBar.logos", "seo.ogImage", "seo.twitterImage"],
+  populate: [
+    "hero.image",
+    "hero.videoFile",
+    "trustBar.logos",
+    "seo.ogImage",
+    "seo.twitterImage",
+    "featuredSolutions",
+    "featuredProducts",
+    "featuredIndustries",
+  ],
 });
 adminSingletonsRouter.get("/home", homeCtl.getOne);
 adminSingletonsRouter.put("/home", homeCtl.updateOne);
+
+const solutionsPageCtl = createSingletonControllers(SolutionsPage);
+adminSingletonsRouter.get("/solutions-page", solutionsPageCtl.getOne);
+adminSingletonsRouter.put("/solutions-page", solutionsPageCtl.updateOne);
 

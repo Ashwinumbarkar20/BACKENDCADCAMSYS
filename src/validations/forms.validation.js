@@ -5,11 +5,17 @@ const optShortStr = z.string().trim().max(200).optional();
 const optEmail = z.string().email().optional();
 
 export const contactBody = z.object({
-  name: z.string().trim().min(1).max(200),
+  firstName: z.string().trim().min(1).max(100),
+  lastName: z.string().trim().min(1).max(100),
+  name: z.string().trim().max(200).optional(),
   email: z.string().email(),
   company: optShortStr,
   designation: optShortStr,
   phone: z.string().trim().max(40).optional(),
+  country: optShortStr,
+  levelOfInterest: z
+    .enum(["browsing", "ready_to_purchase", "evaluating", "beginning_investigation"])
+    .optional(),
   industry: optShortStr,
   message: optStr,
   sourcePage: optShortStr,

@@ -2,8 +2,11 @@ import { Settings } from "../../models/Settings.js";
 import { Navigation } from "../../models/Navigation.js";
 import { Footer } from "../../models/Footer.js";
 import { HomePage } from "../../models/HomePage.js";
+import { SolutionsPage } from "../../models/SolutionsPage.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ok } from "../../utils/apiResponse.js";
+
+const publishedMatch = { status: "published" };
 
 async function getSingleton(Model, populate) {
   let q = Model.findOne({ singletonKey: "global" });
@@ -15,7 +18,7 @@ async function getSingleton(Model, populate) {
 }
 
 export const getPublicSettings = asyncHandler(async (_req, res) => {
-  const settings = await getSingleton(Settings);
+  const settings = await getSingleton(Settings, ["logo", "favicon"]);
   return ok(res, settings);
 });
 
@@ -37,7 +40,33 @@ export const getPublicHome = asyncHandler(async (_req, res) => {
     "trustBar.logos",
     "seo.ogImage",
     "seo.twitterImage",
+    {
+      path: "featuredSolutions",
+      match: publishedMatch,
+      select: "title slug shortDescription overview coverImage seo",
+      populate: [{ path: "coverImage" }],
+    },
+    {
+      path: "featuredProducts",
+      match: publishedMatch,
+      select: "title slug tagline overview coverImage seo category",
+      populate: [
+        { path: "coverImage" },
+        { path: "category", select: "title slug" },
+      ],
+    },
+    {
+      path: "featuredIndustries",
+      match: publishedMatch,
+      select: "title slug headline coverImage seo",
+      populate: [{ path: "coverImage" }],
+    },
   ]);
   return ok(res, home);
+});
+
+export const getPublicSolutionsPage = asyncHandler(async (_req, res) => {
+  const page = await getSingleton(SolutionsPage);
+  return ok(res, page);
 });
 

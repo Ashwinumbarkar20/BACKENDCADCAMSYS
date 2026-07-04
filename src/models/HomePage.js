@@ -46,8 +46,16 @@ const CtaBandSchema = new mongoose.Schema(
   { _id: false }
 );
 
-// Toggle visibility of the dynamic homepage sections without code changes.
-const SectionVisibilitySchema = new mongoose.Schema(
+const SectionCopySchema = new mongoose.Schema(
+  {
+    eyebrow: { type: String, default: "" },
+    title: { type: String, default: "" },
+    intro: { type: String, default: "" },
+  },
+  { _id: false },
+);
+
+const HomeSectionsSchema = new mongoose.Schema(
   {
     showTrustBar: { type: Boolean, default: true },
     showSolutions: { type: Boolean, default: true },
@@ -56,8 +64,11 @@ const SectionVisibilitySchema = new mongoose.Schema(
     showProof: { type: Boolean, default: true },
     showNews: { type: Boolean, default: true },
     showCtaBand: { type: Boolean, default: true },
+    solutions: { type: SectionCopySchema, default: () => ({}) },
+    products: { type: SectionCopySchema, default: () => ({}) },
+    industries: { type: SectionCopySchema, default: () => ({}) },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const HomePageSchema = new mongoose.Schema(
@@ -66,7 +77,10 @@ const HomePageSchema = new mongoose.Schema(
     hero: { type: HeroSchema, default: () => ({}) },
     trustBar: { type: TrustBarSchema, default: () => ({}) },
     ctaBand: { type: CtaBandSchema, default: () => ({}) },
-    sections: { type: SectionVisibilitySchema, default: () => ({}) },
+    sections: { type: HomeSectionsSchema, default: () => ({}) },
+    featuredSolutions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Solution" }],
+    featuredProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    featuredIndustries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Industry" }],
     seo: { type: SeoSchema, default: () => ({}) },
   },
   { timestamps: true }
