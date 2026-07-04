@@ -50,6 +50,7 @@ import {
   deleteRole,
   permissionsMeta,
 } from "../../controllers/admin/roles.controller.js";
+import { leadNewCounts } from "../../controllers/admin/leads.controller.js";
 import {
   requireOwner,
   requirePermission,
@@ -139,6 +140,8 @@ adminCrudRouter.get("/leads/visitors", requirePermission("visitors", "view"), li
 adminCrudRouter.get("/leads/visitors/:id", requirePermission("visitors", "view"), idValidator, getVisitor);
 adminCrudRouter.put("/leads/visitors/:id", requirePermission("visitors", "edit"), idValidator, updateVisitor);
 adminCrudRouter.delete("/leads/visitors/:id", requirePermission("visitors", "delete"), idValidator, deleteVisitor);
+
+adminCrudRouter.post("/leads/new-counts", requirePermission("leads", "view"), leadNewCounts);
 
 // Form submissions — all gated under the "leads" permission bucket.
 mountCrud(adminCrudRouter, "leads/contact-submissions", ContactSubmission, { permissionKey: "leads" });
