@@ -72,8 +72,8 @@ export function createApp() {
     const storage = getUploadStorageDiagnostics();
     return res.json({
       status: "ok",
-      version: "1.0.4",
-      deployTest: "media-persistence-check",
+      version: "1.0.5",
+      deployTest: "media-persistence-check-v2",
       uploadsBackup: storage.uploadsBackupEnv,
       uploadFileCount: storage.uploadFileCount,
       backupFileCount: storage.backupFileCount,
