@@ -33,6 +33,8 @@ const FooterSchema = new mongoose.Schema(
     /** Fixed social column (LinkedIn, X, Facebook, Instagram) for the public footer */
     socialLinks: { type: FooterSocialLinksSchema, default: () => ({}) },
     copyrightText: { type: String, default: "" },
+    /** Optional footer brand blurb; logo still comes from Settings */
+    brandDescription: { type: String, default: "" },
   },
   { timestamps: true }
 );

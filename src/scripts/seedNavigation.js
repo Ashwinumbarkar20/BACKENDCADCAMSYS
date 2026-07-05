@@ -100,30 +100,14 @@ const items = [
     url: "/about",
     children: [
       { label: "About CADCAMSYS", url: "/about" },
-      { label: "Why Choose Us", url: "/why-choose-us" },
-      { label: "Alma Technology Partner", url: "/alma-technology-partner" },
       { label: "Team & Expertise", url: "/team" },
-      {
-        label: "Support & Services",
-        url: "/services",
-        children: [
-          { label: "AMC", url: "/amc" },
-          { label: "Training", url: "/training" },
-          { label: "Post Processor Development", url: "/post-processor-development" },
-          { label: "Implementation Consulting", url: "/implementation-consulting" },
-        ],
-      },
       { label: "Careers", url: "/careers" },
     ],
   },
   {
     label: "Contact Us",
     url: "/contact",
-    children: [
-      { label: "Contact Us", url: "/contact" },
-      { label: "Book Consultation", url: "/contact" },
-      { label: "Support Request", url: "/contact" },
-    ],
+    children: [],
   },
 ];
 

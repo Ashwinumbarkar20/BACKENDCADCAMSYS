@@ -43,7 +43,12 @@ function getTransporter() {
 const DEFAULT_FROM =
   process.env.EMAIL_FROM ?? `"Cadcamsys" <no-reply@cadcamsys.com>`;
 
-const ADMIN_TO = (process.env.CONTACT_TO_EMAIL || process.env.EMAIL_ADMIN_TO || process.env.ADMIN_EMAIL || "")
+const ADMIN_TO = (
+  process.env.CONTACT_TO_EMAIL ||
+  process.env.EMAIL_ADMIN_TO ||
+  process.env.ADMIN_EMAIL ||
+  "sales@cadcamsys.com"
+)
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
