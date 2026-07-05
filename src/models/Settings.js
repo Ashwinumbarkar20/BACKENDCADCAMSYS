@@ -46,6 +46,8 @@ const SettingsSchema = new mongoose.Schema(
             label: { type: String, required: true },
             primary: { type: String, required: true },
             background: { type: String, required: true },
+            accent: { type: String, default: "" },
+            highlight: { type: String, default: "" },
           },
           { _id: false }
         ),
