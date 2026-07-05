@@ -37,6 +37,7 @@ const SettingsSchema = new mongoose.Schema(
     googleAnalyticsId: { type: String, default: "" },
     zohoBookingUrl: { type: String, default: "" },
     themeId: { type: String, default: "compassion-rose" },
+    themeColors: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
   },
   { timestamps: true }
 );
