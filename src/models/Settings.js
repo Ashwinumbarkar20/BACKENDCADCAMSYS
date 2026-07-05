@@ -38,6 +38,20 @@ const SettingsSchema = new mongoose.Schema(
     zohoBookingUrl: { type: String, default: "" },
     themeId: { type: String, default: "compassion-rose" },
     themeColors: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
+    customThemes: {
+      type: [
+        new mongoose.Schema(
+          {
+            id: { type: String, required: true },
+            label: { type: String, required: true },
+            primary: { type: String, required: true },
+            background: { type: String, required: true },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );
