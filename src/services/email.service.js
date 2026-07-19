@@ -10,12 +10,15 @@ import nodemailer from "nodemailer";
 let transporter = null;
 let warned = false;
 
-// Resolved SMTP config. Defaults target Hostinger email (smtp.hostinger.com:465),
-// and credentials accept either the standard SMTP_* names OR the simpler
-// EMAIL_APP_PASSWORD / EMAIL_USER names so the deploy only needs two env vars:
-//   CONTACT_TO_EMAIL  = where leads are delivered (also the sending mailbox)
-//   EMAIL_APP_PASSWORD = that mailbox's password
-const SMTP_HOST = (process.env.SMTP_HOST || "smtp.hostinger.com").trim();
+// Resolved SMTP config. Defaults target Gmail / Google Workspace
+// (smtp.gmail.com:465). Credentials accept either the standard SMTP_* names OR
+// the simpler EMAIL_USER / EMAIL_APP_PASSWORD names. Recommended env for this
+// deploy (send from abhilash@ via Google, deliver to sales@):
+//   EMAIL_USER         = abhilash.nasre@cadcamsys.com   (the sending mailbox)
+//   EMAIL_APP_PASSWORD = <Google App Password for that account>
+//   CONTACT_TO_EMAIL   = sales@cadcamsys.com            (where leads are delivered)
+// For a different provider, set SMTP_HOST (e.g. smtp.zoho.in) + SMTP_PORT.
+const SMTP_HOST = (process.env.SMTP_HOST || "smtp.gmail.com").trim();
 const SMTP_PORT = Number(process.env.SMTP_PORT ?? 465);
 const SMTP_SECURE = (process.env.SMTP_SECURE ?? (SMTP_PORT === 465 ? "true" : "false")) === "true";
 // Sending mailbox: explicit SMTP_USER/EMAIL_USER, else the first recipient.
