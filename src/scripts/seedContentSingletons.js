@@ -13,7 +13,14 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDb } from "../config/db.js";
-import { Alma, ServicePage } from "../models/ContentSingletons.js";
+import {
+  Alma,
+  ServicePage,
+  Amc,
+  Training,
+  PostProcessor,
+  ImplementationConsulting,
+} from "../models/ContentSingletons.js";
 
 const alma = {
   heading: "Alma Technology Partner",
@@ -82,6 +89,55 @@ const services = {
   },
 };
 
+const amc = {
+  heading: "Annual Maintenance Contract (AMC)",
+  tagline: "Priority support, updates, and health checks year-round.",
+  intro:
+    "<p>Keep your CAD/CAM software updated, supported, and optimized with a CADCAMSYS AMC — so your software never holds up the floor.</p>",
+  items: [
+    { icon: "phone", title: "Priority technical support", description: "Fast response from engineers who know your setup." },
+    { icon: "arrow-up", title: "Version upgrades", description: "Stay current with the latest features and fixes." },
+    { icon: "activity", title: "Periodic health checks", description: "Proactive checks and post-processor tune-ups keep machines productive." },
+  ],
+  seo: { metaTitle: "Annual Maintenance Contract (AMC)", metaDescription: "Keep your CAD/CAM software updated, supported, and optimized year-round with a CADCAMSYS AMC." },
+};
+
+const training = {
+  heading: "Training",
+  tagline: "Role-based training that builds confidence.",
+  intro:
+    "<p>Get your team productive fast with structured, role-based training for programmers, estimators, and managers — onsite or remote.</p>",
+  items: [
+    { icon: "book", title: "Programs", description: "Foundations, advanced nesting, quoting, scheduling, and robotics — tailored to your machines and parts." },
+    { icon: "monitor", title: "Delivery", description: "Onsite at your plant or remote, with hands-on exercises on your own geometry." },
+  ],
+  seo: { metaTitle: "Training", metaDescription: "Role-based CAD/CAM training for programmers, estimators, and managers — onsite or remote." },
+};
+
+const postProcessor = {
+  heading: "Post Processor Development",
+  tagline: "Your machines, your output — exactly.",
+  intro:
+    "<p>Custom post-processors so CADCAMSYS drives every machine on your floor exactly the way you need.</p>",
+  items: [
+    { icon: "cpu", title: "Any machine, any controller", description: "We develop and validate post-processors for legacy and modern controllers across all major brands." },
+    { icon: "check", title: "Validated on real cuts", description: "Every post is tested on representative parts so production output is right the first time." },
+  ],
+  seo: { metaTitle: "Post Processor Development", metaDescription: "Custom post-processors so CADCAMSYS drives every machine on your floor exactly the way you need." },
+};
+
+const implementationConsulting = {
+  heading: "Implementation Consulting",
+  tagline: "From kickoff to first production part.",
+  intro:
+    "<p>End-to-end implementation: scope, deploy, integrate, and validate so you reach production quickly.</p>",
+  items: [
+    { icon: "map", title: "Our process", description: "We map machines, workflows, and ERP/MES, then deploy, integrate, and validate against your real jobs." },
+    { icon: "target", title: "Outcomes", description: "A configured system, trained team, and validated programs — producing on day one." },
+  ],
+  seo: { metaTitle: "Implementation Consulting", metaDescription: "End-to-end implementation: scope, deploy, integrate, and validate so you reach production quickly." },
+};
+
 async function upsert(Model, label, data) {
   const res = await Model.findOneAndUpdate(
     { singletonKey: "global" },
@@ -98,6 +154,10 @@ async function main() {
 
   await upsert(Alma, "Alma Technology Partner", alma);
   await upsert(ServicePage, "Support & Services", services);
+  await upsert(Amc, "AMC", amc);
+  await upsert(Training, "Training", training);
+  await upsert(PostProcessor, "Post Processor Development", postProcessor);
+  await upsert(ImplementationConsulting, "Implementation Consulting", implementationConsulting);
 
   console.log("\n✓ Content singletons seeded.");
   await mongoose.disconnect();

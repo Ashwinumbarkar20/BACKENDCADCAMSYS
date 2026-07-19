@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPublicAbout, getPublicAlma, getPublicServicePage, getPublicFooter, getPublicHome, getPublicNavigation, getPublicSettings, getPublicSolutionsPage } from "../../controllers/public/global.controller.js";
+import { getPublicAbout, getPublicAlma, getPublicServicePage, getPublicAmc, getPublicTraining, getPublicPostProcessor, getPublicImplementationConsulting, getPublicFooter, getPublicHome, getPublicNavigation, getPublicSettings, getPublicSolutionsPage } from "../../controllers/public/global.controller.js";
 import { sitemapUrls } from "../../controllers/public/sitemap.controller.js";
 
 export const publicGlobalRouter = Router();
@@ -12,5 +12,9 @@ publicGlobalRouter.get("/solutions-page", getPublicSolutionsPage);
 publicGlobalRouter.get("/about", getPublicAbout);
 publicGlobalRouter.get("/alma", getPublicAlma);
 publicGlobalRouter.get("/services-page", getPublicServicePage);
+publicGlobalRouter.get("/amc", getPublicAmc);
+publicGlobalRouter.get("/training", getPublicTraining);
+publicGlobalRouter.get("/post-processor-development", getPublicPostProcessor);
+publicGlobalRouter.get("/implementation-consulting", getPublicImplementationConsulting);
 publicGlobalRouter.get("/sitemap-urls", sitemapUrls);
 

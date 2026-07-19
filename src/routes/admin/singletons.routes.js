@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createSingletonControllers } from "../../controllers/admin/singleton.controller.js";
-import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage } from "../../models/index.js";
+import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting } from "../../models/index.js";
 import { requireOwner } from "../../middlewares/permissions.js";
 
 export const adminSingletonsRouter = Router();
@@ -58,4 +58,17 @@ const servicePageCtl = createSingletonControllers(ServicePage, {
 });
 adminSingletonsRouter.get("/services-page", servicePageCtl.getOne);
 adminSingletonsRouter.put("/services-page", servicePageCtl.updateOne);
+
+// Service sub-pages.
+const servicePop = { populate: ["heroImage", "seo.ogImage", "seo.twitterImage"] };
+for (const [segment, Model] of [
+  ["amc", Amc],
+  ["training", Training],
+  ["post-processor-development", PostProcessor],
+  ["implementation-consulting", ImplementationConsulting],
+]) {
+  const ctl = createSingletonControllers(Model, servicePop);
+  adminSingletonsRouter.get(`/${segment}`, ctl.getOne);
+  adminSingletonsRouter.put(`/${segment}`, ctl.updateOne);
+}
 

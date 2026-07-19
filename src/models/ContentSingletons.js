@@ -32,3 +32,12 @@ function buildContentSingletonSchema() {
 
 export const Alma = mongoose.model("Alma", buildContentSingletonSchema());
 export const ServicePage = mongoose.model("ServicePage", buildContentSingletonSchema());
+
+// Service sub-pages, each edited from its own tab under "Support & Services".
+export const Amc = mongoose.model("Amc", buildContentSingletonSchema());
+export const Training = mongoose.model("Training", buildContentSingletonSchema());
+export const PostProcessor = mongoose.model("PostProcessor", buildContentSingletonSchema());
+export const ImplementationConsulting = mongoose.model(
+  "ImplementationConsulting",
+  buildContentSingletonSchema(),
+);
