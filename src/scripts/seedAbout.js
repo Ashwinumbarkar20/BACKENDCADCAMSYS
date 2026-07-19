@@ -44,6 +44,37 @@ const about = {
         "Customers see 10–15% material savings, 3x faster quoting, and dramatically higher machine utilization.",
     },
   ],
+  whyChoose: {
+    heading: "Why Choose Us",
+    intro:
+      "World-class Alma technology, local expertise, and outcomes measured on your shop floor — that's why fabricators choose CADCAMSYS.",
+    items: [
+      {
+        icon: "target",
+        title: "Best nesting in the world",
+        description:
+          "Alma develops its nesting engine in-house — recognized among the best globally — so you save more material on every sheet.",
+      },
+      {
+        icon: "wrench",
+        title: "Local implementation & support",
+        description:
+          "On-site implementation, training, AMC, and custom post-processor development from a team that speaks the language of your floor.",
+      },
+      {
+        icon: "chart",
+        title: "Measured results",
+        description:
+          "Customers see 10–15% material savings, 3x faster quoting, and dramatically higher machine utilization.",
+      },
+    ],
+  },
+  team: {
+    heading: "Team & Expertise",
+    intro:
+      "Manufacturing engineers, implementation specialists, and support leads who know the shop floor — not just the software.",
+    showMembers: true,
+  },
   seo: {
     metaTitle: "About CADCAMSYS",
     metaDescription:

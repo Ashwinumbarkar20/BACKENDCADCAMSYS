@@ -67,6 +67,23 @@ async function migrateAboutContent() {
     payload.heading = "About CADCAMSYS";
   }
 
+  // Fold the old "Why Choose Us" page into the About page's whyChoose section.
+  const whyPage = await Page.findOne({ slug: "why-choose-us" }).lean();
+  if (whyPage) {
+    const wSections = Array.isArray(whyPage.sections) ? whyPage.sections : [];
+    const wHero = wSections.find((s) => s.type === "hero");
+    const wTexts = wSections.filter((s) => s.type !== "hero");
+    payload.whyChoose = {
+      heading: whyPage.title || "Why Choose Us",
+      intro: wHero?.content ? wHero.content : "",
+      items: wTexts.map((s) => ({
+        icon: "",
+        title: s.title || "",
+        description: s.content || "",
+      })),
+    };
+  }
+
   await About.findOneAndUpdate(
     { singletonKey: "global" },
     { $set: payload, $setOnInsert: { singletonKey: "global" } },
