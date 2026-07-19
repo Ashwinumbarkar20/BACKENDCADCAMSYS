@@ -57,30 +57,44 @@ const alma = {
 
 const services = {
   heading: "Support & Services",
-  tagline: "Services that protect your CAD/CAM investment.",
+  tagline: "Services that protect your CAD/CAM investment — from first install to daily production.",
   intro:
-    "<p>From first install to ongoing optimization, our team keeps your software delivering on the floor — implementation, training, AMC, and custom post-processor development.</p>",
+    "<p>Software only pays off if it keeps delivering on the floor. Our team stays with you well beyond go-live — scoping and deploying the system, training your people, tuning post-processors for every machine, and keeping everything current with annual maintenance. Whatever your shop runs, we make sure CADCAMSYS earns its place on it.</p>",
   items: [
     {
       icon: "settings",
       title: "Implementation Consulting",
       description:
-        "We scope your machines, workflows, and ERP, then deploy and validate so you're in production fast.",
+        "We map your machines, workflows, and ERP/MES, then deploy, integrate, and validate against your real jobs so you reach production fast.",
     },
     {
       icon: "book",
       title: "Training",
-      description: "Role-based training for programmers, estimators, and managers — onsite or remote.",
+      description:
+        "Role-based, hands-on training for programmers, estimators, and managers — onsite or remote, on your own geometry.",
     },
     {
       icon: "refresh",
       title: "Annual Maintenance Contract (AMC)",
-      description: "Priority support, version upgrades, and periodic health checks year-round.",
+      description:
+        "Priority support, version upgrades, and periodic health checks that keep your software current and your machines busy.",
     },
     {
       icon: "cpu",
       title: "Post-Processor Development",
-      description: "Custom, validated post-processors so CADCAMSYS drives every machine on your floor.",
+      description:
+        "Custom, validated post-processors for legacy and modern controllers across every major brand.",
+    },
+    {
+      icon: "phone",
+      title: "Remote & On-site Support",
+      description: "Fast help when you need it — remote sessions for quick fixes, on-site visits for the bigger jobs.",
+    },
+    {
+      icon: "arrow-up",
+      title: "Software Updates & Upgrades",
+      description:
+        "Stay on the latest release with new features, performance improvements, and fixes — no disruption to production.",
     },
   ],
   seo: {
