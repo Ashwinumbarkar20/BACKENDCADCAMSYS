@@ -12,6 +12,7 @@
     "seed:navigation": "node src/scripts/seedNavigation.js",
     "seed:home": "node src/scripts/seedHome.js",
     "seed:about": "node src/scripts/seedAbout.js",
+    "seed:nav-pages": "node src/scripts/seedNavPages.js",
     "seed:catalog": "node src/scripts/seedCatalog.js",
     "cleanup:demo": "node src/scripts/cleanupDemo.js",
     "backfill:blur": "node src/scripts/backfillBlur.js",
