@@ -32,7 +32,10 @@ const SMTP_USER = (
 )
   .split(",")[0]
   .trim();
-const SMTP_PASS = (process.env.SMTP_PASSWORD || process.env.EMAIL_APP_PASSWORD || "").trim();
+// Google App Passwords are displayed in 4 space-separated groups
+// ("abcd efgh ijkl mnop") but must be sent without spaces — strip all whitespace
+// so the value works whether or not the spaces were copied.
+const SMTP_PASS = (process.env.SMTP_PASSWORD || process.env.EMAIL_APP_PASSWORD || "").replace(/\s+/g, "");
 
 function buildTransporter() {
   // Need a mailbox + password to authenticate; otherwise stay disabled (no-op).
