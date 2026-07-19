@@ -10,20 +10,36 @@ import nodemailer from "nodemailer";
 let transporter = null;
 let warned = false;
 
-function buildTransporter() {
-  const host = process.env.SMTP_HOST?.trim();
-  if (!host) return null;
+// Resolved SMTP config. Defaults target Hostinger email (smtp.hostinger.com:465),
+// and credentials accept either the standard SMTP_* names OR the simpler
+// EMAIL_APP_PASSWORD / EMAIL_USER names so the deploy only needs two env vars:
+//   CONTACT_TO_EMAIL  = where leads are delivered (also the sending mailbox)
+//   EMAIL_APP_PASSWORD = that mailbox's password
+const SMTP_HOST = (process.env.SMTP_HOST || "smtp.hostinger.com").trim();
+const SMTP_PORT = Number(process.env.SMTP_PORT ?? 465);
+const SMTP_SECURE = (process.env.SMTP_SECURE ?? (SMTP_PORT === 465 ? "true" : "false")) === "true";
+// Sending mailbox: explicit SMTP_USER/EMAIL_USER, else the first recipient.
+const SMTP_USER = (
+  process.env.SMTP_USER ||
+  process.env.EMAIL_USER ||
+  process.env.CONTACT_TO_EMAIL ||
+  process.env.EMAIL_ADMIN_TO ||
+  process.env.ADMIN_EMAIL ||
+  ""
+)
+  .split(",")[0]
+  .trim();
+const SMTP_PASS = (process.env.SMTP_PASSWORD || process.env.EMAIL_APP_PASSWORD || "").trim();
 
-  const port = Number(process.env.SMTP_PORT ?? 587);
-  const secure = (process.env.SMTP_SECURE ?? (port === 465 ? "true" : "false")) === "true";
-  const user = process.env.SMTP_USER?.trim();
-  const pass = process.env.SMTP_PASSWORD?.trim();
+function buildTransporter() {
+  // Need a mailbox + password to authenticate; otherwise stay disabled (no-op).
+  if (!SMTP_USER || !SMTP_PASS) return null;
 
   return nodemailer.createTransport({
-    host,
-    port,
-    secure,
-    auth: user && pass ? { user, pass } : undefined,
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_SECURE,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
   });
 }
 
@@ -33,15 +49,19 @@ function getTransporter() {
   if (!transporter && !warned) {
     // eslint-disable-next-line no-console
     console.log(
-      "[email] SMTP_HOST not set — email notifications are disabled. Leads still save to the DB.",
+      "[email] SMTP credentials not set (need EMAIL_APP_PASSWORD + a sending mailbox). " +
+        "Email notifications are disabled; leads still save to the DB.",
     );
     warned = true;
   }
   return transporter;
 }
 
+// Hostinger (and most providers) require the From address to be the authenticated
+// mailbox, otherwise the message is rejected or marked as spam — so From defaults
+// to the sending mailbox, not a no-reply@ address.
 const DEFAULT_FROM =
-  process.env.EMAIL_FROM ?? `"Cadcamsys" <no-reply@cadcamsys.com>`;
+  process.env.EMAIL_FROM ?? (SMTP_USER ? `"CADCAMSYS" <${SMTP_USER}>` : `"Cadcamsys" <no-reply@cadcamsys.com>`);
 
 const ADMIN_TO = (
   process.env.CONTACT_TO_EMAIL ||
@@ -65,16 +85,17 @@ function maskEmail(email) {
 
 /** Safe summary for /health — confirms SMTP + owner inbox without secrets. */
 export function getEmailDiagnostics() {
-  const smtpConfigured = Boolean(process.env.SMTP_HOST?.trim());
-  const hasAuth = Boolean(process.env.SMTP_USER?.trim() && process.env.SMTP_PASSWORD?.trim());
+  const hasAuth = Boolean(SMTP_USER && SMTP_PASS);
   return {
-    smtpConfigured,
-    smtpHost: smtpConfigured ? process.env.SMTP_HOST.trim() : null,
+    smtpConfigured: Boolean(SMTP_HOST),
+    smtpHost: SMTP_HOST,
+    smtpPort: SMTP_PORT,
+    smtpUser: SMTP_USER ? maskEmail(SMTP_USER) : null,
     smtpAuth: hasAuth,
     adminRecipients: ADMIN_TO.map(maskEmail),
     adminRecipientCount: ADMIN_TO.length,
     fromAddress: DEFAULT_FROM,
-    leadEmailReady: smtpConfigured && hasAuth && ADMIN_TO.length > 0,
+    leadEmailReady: hasAuth && ADMIN_TO.length > 0,
   };
 }
 
