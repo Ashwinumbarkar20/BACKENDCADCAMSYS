@@ -50,7 +50,7 @@ const ADMIN_TO = (
   // Default inbox for contact-form messages, appointment bookings, and PDF
   // download leads. Override in production via CONTACT_TO_EMAIL (comma-separated
   // for multiple recipients).
-  "ashwinumbarkar20@gmail.com"
+  "sales@cadcamsys.com"
 )
   .split(",")
   .map((s) => s.trim())
