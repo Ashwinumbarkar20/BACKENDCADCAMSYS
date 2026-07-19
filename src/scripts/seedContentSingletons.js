@@ -20,6 +20,7 @@ import {
   Training,
   PostProcessor,
   ImplementationConsulting,
+  Roi,
 } from "../models/ContentSingletons.js";
 
 const alma = {
@@ -138,6 +139,19 @@ const implementationConsulting = {
   seo: { metaTitle: "Implementation Consulting", metaDescription: "End-to-end implementation: scope, deploy, integrate, and validate so you reach production quickly." },
 };
 
+const roi = {
+  heading: "ROI Center",
+  tagline: "See what tighter nesting and faster quoting are worth to your shop.",
+  intro:
+    "<p>Estimate the material, labor, and throughput savings CADCAMSYS can deliver. Enter a few numbers below to model your return — most shops recover the software cost in months.</p>",
+  items: [
+    { icon: "layers", title: "Material savings", description: "Best-in-class true-shape nesting typically improves yield by 10–15%." },
+    { icon: "clock", title: "Faster quoting", description: "Automated quoting cuts estimating time by up to 3x." },
+    { icon: "trending-up", title: "Higher utilization", description: "Better scheduling keeps machines cutting, not waiting." },
+  ],
+  seo: { metaTitle: "ROI Center", metaDescription: "Estimate the material, labor, and throughput savings CADCAMSYS can deliver for your shop." },
+};
+
 async function upsert(Model, label, data) {
   const res = await Model.findOneAndUpdate(
     { singletonKey: "global" },
@@ -158,6 +172,7 @@ async function main() {
   await upsert(Training, "Training", training);
   await upsert(PostProcessor, "Post Processor Development", postProcessor);
   await upsert(ImplementationConsulting, "Implementation Consulting", implementationConsulting);
+  await upsert(Roi, "ROI Center", roi);
 
   console.log("\n✓ Content singletons seeded.");
   await mongoose.disconnect();

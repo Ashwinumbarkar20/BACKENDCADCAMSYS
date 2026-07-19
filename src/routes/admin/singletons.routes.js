@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createSingletonControllers } from "../../controllers/admin/singleton.controller.js";
-import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting } from "../../models/index.js";
+import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage } from "../../models/index.js";
 import { requireOwner } from "../../middlewares/permissions.js";
 
 export const adminSingletonsRouter = Router();
@@ -71,4 +71,14 @@ for (const [segment, Model] of [
   adminSingletonsRouter.get(`/${segment}`, ctl.getOne);
   adminSingletonsRouter.put(`/${segment}`, ctl.updateOne);
 }
+
+const roiCtl = createSingletonControllers(Roi, servicePop);
+adminSingletonsRouter.get("/roi-center", roiCtl.getOne);
+adminSingletonsRouter.put("/roi-center", roiCtl.updateOne);
+
+const downloadsCtl = createSingletonControllers(DownloadsPage, {
+  populate: ["items.file", "seo.ogImage", "seo.twitterImage"],
+});
+adminSingletonsRouter.get("/downloads", downloadsCtl.getOne);
+adminSingletonsRouter.put("/downloads", downloadsCtl.updateOne);
 

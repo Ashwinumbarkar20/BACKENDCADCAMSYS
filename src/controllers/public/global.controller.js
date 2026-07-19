@@ -4,7 +4,7 @@ import { Footer } from "../../models/Footer.js";
 import { HomePage } from "../../models/HomePage.js";
 import { SolutionsPage } from "../../models/SolutionsPage.js";
 import { About } from "../../models/About.js";
-import { Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting } from "../../models/ContentSingletons.js";
+import { Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage } from "../../models/ContentSingletons.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ok } from "../../utils/apiResponse.js";
 
@@ -100,5 +100,11 @@ export const getPublicPostProcessor = asyncHandler(async (_req, res) =>
 );
 export const getPublicImplementationConsulting = asyncHandler(async (_req, res) =>
   ok(res, await getSingleton(ImplementationConsulting, servicePop)),
+);
+export const getPublicRoi = asyncHandler(async (_req, res) =>
+  ok(res, await getSingleton(Roi, servicePop)),
+);
+export const getPublicDownloads = asyncHandler(async (_req, res) =>
+  ok(res, await getSingleton(DownloadsPage, ["items.file", "seo.ogImage", "seo.twitterImage"])),
 );
 

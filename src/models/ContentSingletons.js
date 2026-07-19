@@ -33,6 +33,31 @@ function buildContentSingletonSchema() {
 export const Alma = mongoose.model("Alma", buildContentSingletonSchema());
 export const ServicePage = mongoose.model("ServicePage", buildContentSingletonSchema());
 
+// ROI Center — intro content around the public ROI calculator.
+export const Roi = mongoose.model("Roi", buildContentSingletonSchema());
+
+// Downloads — an admin-managed list of downloadable files (PDFs, brochures…).
+const DownloadItemSchema = new mongoose.Schema(
+  {
+    title: { type: String, default: "" },
+    description: { type: String, default: "" },
+    file: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
+  },
+  { _id: false },
+);
+const DownloadsSchema = new mongoose.Schema(
+  {
+    singletonKey: { type: String, default: "global", unique: true, index: true },
+    heading: { type: String, default: "Downloads" },
+    tagline: { type: String, default: "" },
+    intro: { type: String, default: "" },
+    items: { type: [DownloadItemSchema], default: [] },
+    seo: { type: SeoSchema, default: () => ({}) },
+  },
+  { timestamps: true },
+);
+export const DownloadsPage = mongoose.model("DownloadsPage", DownloadsSchema);
+
 // Service sub-pages, each edited from its own tab under "Support & Services".
 export const Amc = mongoose.model("Amc", buildContentSingletonSchema());
 export const Training = mongoose.model("Training", buildContentSingletonSchema());
