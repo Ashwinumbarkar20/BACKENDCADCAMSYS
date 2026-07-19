@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createSingletonControllers } from "../../controllers/admin/singleton.controller.js";
-import { Settings, Navigation, Footer, HomePage, SolutionsPage, About } from "../../models/index.js";
+import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage } from "../../models/index.js";
 import { requireOwner } from "../../middlewares/permissions.js";
 
 export const adminSingletonsRouter = Router();
@@ -46,4 +46,16 @@ const aboutCtl = createSingletonControllers(About, {
 });
 adminSingletonsRouter.get("/about", aboutCtl.getOne);
 adminSingletonsRouter.put("/about", aboutCtl.updateOne);
+
+const almaCtl = createSingletonControllers(Alma, {
+  populate: ["heroImage", "seo.ogImage", "seo.twitterImage"],
+});
+adminSingletonsRouter.get("/alma", almaCtl.getOne);
+adminSingletonsRouter.put("/alma", almaCtl.updateOne);
+
+const servicePageCtl = createSingletonControllers(ServicePage, {
+  populate: ["heroImage", "seo.ogImage", "seo.twitterImage"],
+});
+adminSingletonsRouter.get("/services-page", servicePageCtl.getOne);
+adminSingletonsRouter.put("/services-page", servicePageCtl.updateOne);
 

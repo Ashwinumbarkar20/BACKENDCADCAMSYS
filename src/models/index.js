@@ -7,6 +7,7 @@ export * from "./Footer.js";
 export * from "./HomePage.js";
 export * from "./SolutionsPage.js";
 export * from "./About.js";
+export * from "./ContentSingletons.js";
 export * from "./Page.js";
 
 export * from "./Solution.js";

@@ -4,6 +4,7 @@ import { Footer } from "../../models/Footer.js";
 import { HomePage } from "../../models/HomePage.js";
 import { SolutionsPage } from "../../models/SolutionsPage.js";
 import { About } from "../../models/About.js";
+import { Alma, ServicePage } from "../../models/ContentSingletons.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ok } from "../../utils/apiResponse.js";
 
@@ -75,5 +76,15 @@ export const getPublicAbout = asyncHandler(async (_req, res) => {
   // Populate media refs so the public site receives resolvable image URLs.
   const about = await getSingleton(About, ["heroImage", "seo.ogImage", "seo.twitterImage"]);
   return ok(res, about);
+});
+
+export const getPublicAlma = asyncHandler(async (_req, res) => {
+  const alma = await getSingleton(Alma, ["heroImage", "seo.ogImage", "seo.twitterImage"]);
+  return ok(res, alma);
+});
+
+export const getPublicServicePage = asyncHandler(async (_req, res) => {
+  const services = await getSingleton(ServicePage, ["heroImage", "seo.ogImage", "seo.twitterImage"]);
+  return ok(res, services);
 });
 
