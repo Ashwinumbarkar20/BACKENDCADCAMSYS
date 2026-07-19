@@ -96,13 +96,12 @@ const items = [
     ],
   },
   {
+    // About Us is now a single direct link to the About page. The old dropdown
+    // sub-sections ("Team & Expertise", "Why Choose Us") were removed; the
+    // About page content is edited from the dedicated "About Us" tab in admin.
     label: "About Us",
     url: "/about",
-    children: [
-      { label: "About CADCAMSYS", url: "/about" },
-      { label: "Team & Expertise", url: "/team" },
-      { label: "Careers", url: "/careers" },
-    ],
+    children: [],
   },
   {
     label: "Contact Us",

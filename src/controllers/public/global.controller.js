@@ -3,6 +3,7 @@ import { Navigation } from "../../models/Navigation.js";
 import { Footer } from "../../models/Footer.js";
 import { HomePage } from "../../models/HomePage.js";
 import { SolutionsPage } from "../../models/SolutionsPage.js";
+import { About } from "../../models/About.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ok } from "../../utils/apiResponse.js";
 
@@ -68,5 +69,11 @@ export const getPublicHome = asyncHandler(async (_req, res) => {
 export const getPublicSolutionsPage = asyncHandler(async (_req, res) => {
   const page = await getSingleton(SolutionsPage);
   return ok(res, page);
+});
+
+export const getPublicAbout = asyncHandler(async (_req, res) => {
+  // Populate media refs so the public site receives resolvable image URLs.
+  const about = await getSingleton(About, ["heroImage", "seo.ogImage", "seo.twitterImage"]);
+  return ok(res, about);
 });
 

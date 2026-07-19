@@ -468,21 +468,9 @@ async function seedIndustries() {
 async function seedPages() {
   console.log("\n▸ Pages");
   const pages = [
-    { slug: "about", title: "About CADCAMSYS", kicker: "About", palette: "page",
-      desc: "CADCAMSYS delivers production-grade CAM, nesting, quoting, and scheduling to fabrication shops across India and beyond — powered by Alma technology.",
-      sections: [
-        ["hero", "We make manufacturing faster.", "CADCAMSYS gives fabrication shops the CAM, quoting, and scheduling tools to compete with the largest manufacturers in the world."],
-        ["text", "Who we are", "As the trusted Alma technology partner, we bring world-class CAD/CAM, nesting, and robotics software to fabricators — backed by local implementation, training, and support."],
-        ["text", "What we believe", "Software should pay for itself on the shop floor. Every deployment is measured in material saved, quotes won, and machines kept busy."],
-      ] },
-    { slug: "why-choose-us", title: "Why Choose Us", kicker: "Why CADCAMSYS", palette: "page",
-      desc: "World-class Alma technology, local expertise, and outcomes measured on your shop floor — that's why fabricators choose CADCAMSYS.",
-      sections: [
-        ["hero", "Why fabricators choose CADCAMSYS", "World-class software, local expertise, and a relentless focus on shop-floor outcomes."],
-        ["text", "Best nesting in the world", "Alma develops its nesting engine in-house — recognized among the best globally — so you save more material on every sheet."],
-        ["text", "Local implementation & support", "On-site implementation, training, AMC, and custom post-processor development from a team that speaks the language of your floor."],
-        ["text", "Measured results", "Customers see 10–15% material savings, 3x faster quoting, and dramatically higher machine utilization."],
-      ] },
+    // Note: the "About CADCAMSYS" page is no longer a generic Page — it is now a
+    // dedicated "About" singleton edited from the admin "About Us" tab and seeded
+    // by seedAbout.js. "Why Choose Us" was removed from the site entirely.
     { slug: "alma-technology-partner", title: "Alma Technology Partner", kicker: "Partnership", palette: "page",
       desc: "CADCAMSYS is the authorized Alma technology partner, bringing the unified CAD-CAM platform for nesting, cutting, and robotics to your shop.",
       sections: [

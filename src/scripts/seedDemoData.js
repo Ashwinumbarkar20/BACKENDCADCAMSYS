@@ -953,27 +953,8 @@ async function seedTeamMembers() {
 
 async function seedPages() {
   console.log("\n▸ Pages");
-  await upsertBySlug(
-    Page,
-    "about",
-    {
-      title: "About CADCAMSYS",
-      pageType: "default",
-      sections: [
-        {
-          type: "hero",
-          title: "We build software that makes manufacturing faster.",
-          content: "CADCAMSYS gives fabrication shops the CAM, quoting, and scheduling tools they need to compete with the largest manufacturers in the world.",
-        },
-        {
-          type: "text",
-          title: "Our story",
-          content: "Founded by manufacturing engineers, we've spent two decades building software that actually fits how a shop works. Today we serve customers across India, SE Asia, and Europe.",
-        },
-      ],
-    },
-    { label: "Page (about)" },
-  );
+  // "About CADCAMSYS" is now the dedicated About singleton (see seedAbout.js),
+  // not a generic Page. Only the remaining standalone pages are seeded here.
   await upsertBySlug(
     Page,
     "contact",
