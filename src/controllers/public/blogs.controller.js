@@ -42,13 +42,28 @@ export const getBlogBySlug = asyncHandler(async (req, res) => {
       {
         path: "relatedProducts",
         match: publishedMatch,
-        select: "title slug tagline overview keyFeatures seo solution",
+        // coverImage must be selected AND populated, otherwise the related
+        // product cards on the blog page render with no image.
+        select: "title slug tagline overview keyFeatures seo solution coverImage",
         // Nested populate so the website can derive "Related solutions" badges
         // from relatedProducts[].solution without needing a separate ref array.
-        populate: { path: "solution", match: publishedMatch, select: "title slug" },
+        populate: [
+          { path: "solution", match: publishedMatch, select: "title slug" },
+          { path: "coverImage" },
+        ],
       },
-      { path: "relatedIndustries", match: publishedMatch, select: "title slug coverImage headline seo" },
-      { path: "relatedCaseStudies", match: publishedMatch, select: "title slug customerName customerLogo industry seo" },
+      {
+        path: "relatedIndustries",
+        match: publishedMatch,
+        select: "title slug coverImage headline seo",
+        populate: [{ path: "coverImage" }],
+      },
+      {
+        path: "relatedCaseStudies",
+        match: publishedMatch,
+        select: "title slug customerName customerLogo industry seo",
+        populate: [{ path: "customerLogo" }],
+      },
       { path: "seo.ogImage" },
       { path: "seo.twitterImage" },
     ])
