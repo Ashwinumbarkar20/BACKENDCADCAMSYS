@@ -85,3 +85,28 @@ export const pdfDownloadBody = z.object({
   // Honeypot — see contactBody.
   botField: z.string().max(200).optional(),
 });
+
+// Training certification enrolment (name + email required).
+export const enrollmentBody = z.object({
+  name: z.string().trim().min(1).max(200),
+  email: z.string().email(),
+  company: optShortStr,
+  programme: optShortStr,
+  message: z.string().max(4000).optional(),
+  sourcePage: optShortStr,
+  botField: z.string().max(200).optional(),
+});
+
+// Post-processor development request. Sent as multipart (optional NC file), so
+// every field arrives as a string.
+export const postProcessorBody = z.object({
+  name: optShortStr,
+  email: z.string().email(),
+  company: optShortStr,
+  machineBrand: z.string().trim().min(1).max(200),
+  controller: optShortStr,
+  technology: optShortStr,
+  notes: z.string().max(4000).optional(),
+  sourcePage: optShortStr,
+  botField: z.string().max(200).optional(),
+});

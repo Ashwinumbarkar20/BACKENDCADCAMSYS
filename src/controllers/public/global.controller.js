@@ -79,7 +79,7 @@ export const getPublicAbout = asyncHandler(async (_req, res) => {
 });
 
 export const getPublicAlma = asyncHandler(async (_req, res) => {
-  const alma = await getSingleton(Alma, ["heroImage", "seo.ogImage", "seo.twitterImage"]);
+  const alma = await getSingleton(Alma, ["heroImage", "logo", "seo.ogImage", "seo.twitterImage"]);
   return ok(res, alma);
 });
 
@@ -88,7 +88,7 @@ export const getPublicServicePage = asyncHandler(async (_req, res) => {
   return ok(res, services);
 });
 
-const servicePop = ["heroImage", "seo.ogImage", "seo.twitterImage"];
+const servicePop = ["heroImage", "logo", "seo.ogImage", "seo.twitterImage"];
 export const getPublicAmc = asyncHandler(async (_req, res) =>
   ok(res, await getSingleton(Amc, servicePop)),
 );

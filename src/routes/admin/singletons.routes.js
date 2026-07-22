@@ -48,7 +48,7 @@ adminSingletonsRouter.get("/about", aboutCtl.getOne);
 adminSingletonsRouter.put("/about", aboutCtl.updateOne);
 
 const almaCtl = createSingletonControllers(Alma, {
-  populate: ["heroImage", "seo.ogImage", "seo.twitterImage"],
+  populate: ["heroImage", "logo", "seo.ogImage", "seo.twitterImage"],
 });
 adminSingletonsRouter.get("/alma", almaCtl.getOne);
 adminSingletonsRouter.put("/alma", almaCtl.updateOne);
@@ -60,7 +60,7 @@ adminSingletonsRouter.get("/services-page", servicePageCtl.getOne);
 adminSingletonsRouter.put("/services-page", servicePageCtl.updateOne);
 
 // Service sub-pages.
-const servicePop = { populate: ["heroImage", "seo.ogImage", "seo.twitterImage"] };
+const servicePop = { populate: ["heroImage", "logo", "seo.ogImage", "seo.twitterImage"] };
 for (const [segment, Model] of [
   ["amc", Amc],
   ["training", Training],

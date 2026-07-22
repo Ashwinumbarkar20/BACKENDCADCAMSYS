@@ -29,6 +29,8 @@ export * from "./forms/NewsletterSubscriber.js";
 export * from "./forms/ROIRequest.js";
 export * from "./forms/JobApplication.js";
 export * from "./forms/PdfDownloadRequest.js";
+export * from "./forms/EnrollmentRequest.js";
+export * from "./forms/PostProcessorRequest.js";
 
 export * from "./Visitor.js";
 export * from "./PageView.js";

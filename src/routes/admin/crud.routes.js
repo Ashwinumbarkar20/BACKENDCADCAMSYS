@@ -22,6 +22,8 @@ import {
   ROIRequest,
   JobApplication,
   PdfDownloadRequest,
+  EnrollmentRequest,
+  PostProcessorRequest,
 } from "../../models/index.js";
 import {
   syncProductSolutionLink,
@@ -151,6 +153,8 @@ mountCrud(adminCrudRouter, "leads/newsletter-subscribers", NewsletterSubscriber,
 mountCrud(adminCrudRouter, "leads/roi-requests", ROIRequest, { permissionKey: "leads" });
 mountCrud(adminCrudRouter, "leads/job-applications", JobApplication, { permissionKey: "leads" });
 mountCrud(adminCrudRouter, "leads/pdf-downloads", PdfDownloadRequest, { permissionKey: "leads" });
+mountCrud(adminCrudRouter, "leads/enrollments", EnrollmentRequest, { permissionKey: "leads" });
+mountCrud(adminCrudRouter, "leads/post-processor-requests", PostProcessorRequest, { permissionKey: "leads" });
 
 // Users — assignable via role. The controller adds anti-escalation guards
 // (non-owners cannot grant isOwner, cannot edit/delete existing owner accounts).

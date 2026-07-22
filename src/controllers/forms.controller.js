@@ -11,6 +11,8 @@ import {
   Career,
   Visitor,
   PageView,
+  EnrollmentRequest,
+  PostProcessorRequest,
 } from "../models/index.js";
 import { notifyAdminLead, sendLeadConfirmation } from "../services/email.service.js";
 import {
@@ -20,6 +22,7 @@ import {
   getUpcomingAvailability,
 } from "../services/appointmentSlots.js";
 import { readCookie, computeVisitorScore, VISITOR_COOKIE } from "../utils/track.js";
+import { publicUploadUrl } from "../config/uploads.js";
 
 /**
  * If this request carries a visitor cookie, attach the new submission to that
@@ -247,6 +250,58 @@ export const applyJob = asyncHandler(async (req, res) => {
       kind: "application",
       name: req.body.name,
     }),
+  );
+  return created(res, doc);
+});
+
+// ---------------------------------------------------------------------------
+// Training certification enrolment
+// ---------------------------------------------------------------------------
+export const requestEnrollment = asyncHandler(async (req, res) => {
+  if (req.body.botField) return created(res, { received: true });
+  delete req.body.botField;
+
+  const doc = await EnrollmentRequest.create(req.body);
+  notify(linkSubmissionToVisitor(req, "enrollment", doc._id));
+  notify(
+    notifyAdminLead({
+      kind: req.body.programme
+        ? `Training enrolment — ${req.body.programme}`
+        : "Training enrolment",
+      fields: req.body,
+      replyTo: req.body.email,
+    }),
+  );
+  notify(
+    sendLeadConfirmation({ to: req.body.email, kind: "enrolment request", name: req.body.name }),
+  );
+  return created(res, doc);
+});
+
+// ---------------------------------------------------------------------------
+// Post-processor development request (multipart — optional sample NC file)
+// ---------------------------------------------------------------------------
+export const requestPostProcessor = asyncHandler(async (req, res) => {
+  if (req.body.botField) return created(res, { received: true });
+  delete req.body.botField;
+
+  const payload = { ...req.body };
+  if (req.file) {
+    payload.sampleFileUrl = publicUploadUrl(req.file.filename);
+    payload.sampleFileName = req.file.originalname || req.file.filename;
+  }
+
+  const doc = await PostProcessorRequest.create(payload);
+  notify(linkSubmissionToVisitor(req, "post-processor", doc._id));
+  notify(
+    notifyAdminLead({
+      kind: `Post-processor request — ${payload.machineBrand || "machine"}`,
+      fields: payload,
+      replyTo: payload.email,
+    }),
+  );
+  notify(
+    sendLeadConfirmation({ to: payload.email, kind: "post-processor request", name: payload.name }),
   );
   return created(res, doc);
 });

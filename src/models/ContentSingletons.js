@@ -22,6 +22,8 @@ function buildContentSingletonSchema() {
       heading: { type: String, default: "" },
       tagline: { type: String, default: "" },
       heroImage: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
+      // Optional brand/partner logo shown beside the intro.
+      logo: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
       intro: { type: String, default: "" }, // rich text (HTML)
       items: { type: [ContentItemSchema], default: [] },
       seo: { type: SeoSchema, default: () => ({}) },
