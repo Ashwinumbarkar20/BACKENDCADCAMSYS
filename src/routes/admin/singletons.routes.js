@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createSingletonControllers } from "../../controllers/admin/singleton.controller.js";
-import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage } from "../../models/index.js";
+import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage, BookDemoPage, ContactPage } from "../../models/index.js";
 import { requireOwner } from "../../middlewares/permissions.js";
 
 export const adminSingletonsRouter = Router();
@@ -69,6 +69,12 @@ for (const [segment, Model] of [
   ["post-processor-development", PostProcessor],
   ["implementation-consulting", ImplementationConsulting],
 ]) {
+  const ctl = createSingletonControllers(Model, servicePop);
+  adminSingletonsRouter.get(`/${segment}`, ctl.getOne);
+  adminSingletonsRouter.put(`/${segment}`, ctl.updateOne);
+}
+
+for (const [segment, Model] of [["book-demo", BookDemoPage], ["contact-page", ContactPage]]) {
   const ctl = createSingletonControllers(Model, servicePop);
   adminSingletonsRouter.get(`/${segment}`, ctl.getOne);
   adminSingletonsRouter.put(`/${segment}`, ctl.updateOne);

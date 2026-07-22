@@ -35,6 +35,10 @@ function buildContentSingletonSchema() {
 export const Alma = mongoose.model("Alma", buildContentSingletonSchema());
 export const ServicePage = mongoose.model("ServicePage", buildContentSingletonSchema());
 
+// Book a demo + Contact pages — heading/intro shown above their forms.
+export const BookDemoPage = mongoose.model("BookDemoPage", buildContentSingletonSchema());
+export const ContactPage = mongoose.model("ContactPage", buildContentSingletonSchema());
+
 // ROI Center — intro content around the public ROI calculator.
 export const Roi = mongoose.model("Roi", buildContentSingletonSchema());
 
