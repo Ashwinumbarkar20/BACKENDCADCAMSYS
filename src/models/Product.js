@@ -16,6 +16,9 @@ const KeyFeatureSchema = new mongoose.Schema(
 const SupportingMachineSchema = new mongoose.Schema(
   {
     text: { type: String, default: "" },
+    // Machine names/models the product supports. Entered as a comma-separated
+    // list in the admin and shown as a carousel on the public product page.
+    machines: { type: [String], default: [] },
     images: [{ type: mongoose.Schema.Types.ObjectId, ref: "Media" }],
   },
   { _id: false }

@@ -33,9 +33,27 @@ export const getCaseStudyBySlug = asyncHandler(async (req, res) => {
   const doc = await CaseStudy.findOne({ slug: req.params.slug.toLowerCase(), ...publishedMatch })
     .populate([
       { path: "customerLogo" },
-      { path: "industry", match: publishedMatch, select: "title slug coverImage headline" },
-      { path: "products", match: publishedMatch, select: "title slug shortDescription hero" },
-      { path: "testimonial", match: publishedMatch, select: "customerName company designation quote photo logo rating" },
+      {
+        path: "industry",
+        match: publishedMatch,
+        select: "title slug coverImage headline",
+        populate: [{ path: "coverImage" }],
+      },
+      {
+        // `shortDescription`/`hero` do not exist on Product — the blurb field is
+        // `tagline`. coverImage must be selected AND populated or the related
+        // product cards render with no image.
+        path: "products",
+        match: publishedMatch,
+        select: "title slug tagline coverImage seo",
+        populate: [{ path: "coverImage" }],
+      },
+      {
+        path: "testimonial",
+        match: publishedMatch,
+        select: "customerName company designation quote photo logo rating",
+        populate: [{ path: "photo" }, { path: "logo" }],
+      },
       { path: "seo.ogImage" },
       { path: "seo.twitterImage" },
     ])

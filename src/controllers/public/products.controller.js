@@ -62,6 +62,8 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
         path: "relatedTestimonials",
         match: publishedMatch,
         select: "customerName company designation quote photo logo rating seo",
+        // Photo/logo are Media refs — populate them or the cards show no image.
+        populate: [{ path: "photo" }, { path: "logo" }],
       },
       {
         path: "relatedCaseStudies",

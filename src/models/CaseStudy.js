@@ -26,6 +26,8 @@ const CaseStudySchema = new mongoose.Schema(
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
 
     challenge: { type: String, default: "" },
+    // Optional bullet points shown under the challenge paragraph.
+    challengePoints: { type: [String], default: [] },
     sections: { type: [CaseStudySectionSchema], default: [] },
     results: { type: [ResultSchema], default: [] },
 
