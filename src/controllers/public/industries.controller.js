@@ -45,9 +45,26 @@ export const getIndustryBySlug = asyncHandler(async (req, res) => {
         select: "title slug customerName customerLogo industry seo",
         populate: [{ path: "customerLogo" }],
       },
-      { path: "testimonials", match: publishedMatch, select: "customerName company designation quote photo logo rating seo" },
-      { path: "blogs", match: publishedMatch, select: "title slug excerpt featuredImage publishedAt seo" },
-      { path: "tutorials", match: publishedMatch, select: "title slug videoUrl featuredImage seo" },
+      {
+        path: "testimonials",
+        match: publishedMatch,
+        select: "customerName company designation quote photo logo rating seo",
+        populate: [{ path: "photo" }, { path: "logo" }],
+      },
+      {
+        // Blog has `images` (array) — there is no `featuredImage` on Blog, so
+        // the old select returned nothing usable for the card image.
+        path: "blogs",
+        match: publishedMatch,
+        select: "title slug excerpt images publishedAt seo",
+        populate: [{ path: "images" }],
+      },
+      {
+        path: "tutorials",
+        match: publishedMatch,
+        select: "title slug videoUrl featuredImage seo",
+        populate: [{ path: "featuredImage" }],
+      },
       { path: "customerLogos" },
       { path: "pdfs.file" },
       { path: "seo.ogImage" },

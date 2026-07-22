@@ -54,9 +54,11 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
         populate: [{ path: "coverImage" }],
       },
       {
+        // Blog stores hero images in `images` — `featuredImage` does not exist.
         path: "relatedBlogs",
         match: publishedMatch,
-        select: "title slug excerpt featuredImage publishedAt seo",
+        select: "title slug excerpt images publishedAt seo",
+        populate: [{ path: "images" }],
       },
       {
         path: "relatedTestimonials",
