@@ -83,6 +83,8 @@ const ProductSchema = new mongoose.Schema(
     benefits: [{ type: String }],
 
     supportingMachine: { type: SupportingMachineSchema, default: () => ({}) },
+    // Admin-editable titles for the public sections (blank = built-in default).
+    sectionTitles: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
 
     useCases: { type: [UseCaseSchema], default: [] },
 
