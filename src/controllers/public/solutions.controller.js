@@ -55,10 +55,12 @@ export const getSolutionBySlug = asyncHandler(async (req, res) => {
         populate: [{ path: "coverImage" }],
       },
       {
+        // Blog hero images live in `images` — there is no `featuredImage` path,
+        // and populating a non-existent path makes Mongoose throw (500).
         path: "blogs",
         match: publishedMatch,
-        select: "title slug excerpt featuredImage publishedAt seo",
-        populate: [{ path: "featuredImage" }],
+        select: "title slug excerpt images publishedAt seo",
+        populate: [{ path: "images" }],
       },
       {
         path: "caseStudies",
@@ -66,7 +68,12 @@ export const getSolutionBySlug = asyncHandler(async (req, res) => {
         select: "title slug customerName customerLogo industry seo",
         populate: [{ path: "customerLogo" }],
       },
-      { path: "testimonials", match: publishedMatch, select: "customerName company designation quote photo logo rating seo" },
+      {
+        path: "testimonials",
+        match: publishedMatch,
+        select: "customerName company designation quote photo logo rating seo",
+        populate: [{ path: "photo" }, { path: "logo" }],
+      },
       { path: "seo.ogImage" },
       { path: "seo.twitterImage" },
     ])
