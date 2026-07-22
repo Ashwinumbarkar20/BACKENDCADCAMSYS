@@ -103,6 +103,7 @@ export const postProcessorBody = z.object({
   name: optShortStr,
   email: z.string().email(),
   company: optShortStr,
+  mobile: optShortStr,
   machineBrand: z.string().trim().min(1).max(200),
   controller: optShortStr,
   technology: optShortStr,

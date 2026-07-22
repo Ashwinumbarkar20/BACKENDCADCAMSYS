@@ -7,6 +7,7 @@ const PostProcessorRequestSchema = new mongoose.Schema(
     name: { type: String, default: "", trim: true },
     email: { type: String, required: true, trim: true, lowercase: true },
     company: { type: String, default: "", trim: true },
+    mobile: { type: String, default: "", trim: true },
     machineBrand: { type: String, required: true, trim: true },
     controller: { type: String, default: "", trim: true },
     technology: { type: String, default: "", trim: true }, // plasma, laser, punch…
