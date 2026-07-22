@@ -27,7 +27,7 @@ export const listSolutions = asyncHandler(async (req, res) => {
           path: "products",
           match: publishedMatch,
           select: "title slug tagline coverImage seo",
-          options: { sort: { sortOrder: 1, title: 1 } },
+          // Order follows the admin's products array on the solution.
           populate: [{ path: "coverImage" }],
         },
       ])

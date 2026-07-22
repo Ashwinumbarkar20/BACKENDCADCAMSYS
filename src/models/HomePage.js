@@ -81,6 +81,10 @@ const HomePageSchema = new mongoose.Schema(
     featuredSolutions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Solution" }],
     featuredProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     featuredIndustries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Industry" }],
+    // Proof section — which case studies to show (falls back to latest).
+    featuredCaseStudies: [{ type: mongoose.Schema.Types.ObjectId, ref: "CaseStudy" }],
+    // News section — which posts to show (falls back to latest).
+    featuredNews: [{ type: mongoose.Schema.Types.ObjectId, ref: "News" }],
     seo: { type: SeoSchema, default: () => ({}) },
   },
   { timestamps: true }

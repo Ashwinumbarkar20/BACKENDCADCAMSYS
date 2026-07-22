@@ -32,6 +32,8 @@ const homeCtl = createSingletonControllers(HomePage, {
     "featuredSolutions",
     "featuredProducts",
     "featuredIndustries",
+    "featuredCaseStudies",
+    "featuredNews",
   ],
 });
 adminSingletonsRouter.get("/home", homeCtl.getOne);

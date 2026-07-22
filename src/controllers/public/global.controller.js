@@ -63,6 +63,18 @@ export const getPublicHome = asyncHandler(async (_req, res) => {
       select: "title slug headline coverImage seo",
       populate: [{ path: "coverImage" }],
     },
+    {
+      path: "featuredCaseStudies",
+      match: publishedMatch,
+      select: "title slug customerName customerLogo challenge industry seo",
+      populate: [{ path: "customerLogo" }, { path: "industry", select: "title slug" }],
+    },
+    {
+      path: "featuredNews",
+      match: publishedMatch,
+      select: "title slug excerpt coverImage publishedAt seo",
+      populate: [{ path: "coverImage" }],
+    },
   ]);
   return ok(res, home);
 });
