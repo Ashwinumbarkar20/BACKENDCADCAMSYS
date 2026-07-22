@@ -286,9 +286,15 @@ export const requestPostProcessor = asyncHandler(async (req, res) => {
   delete req.body.botField;
 
   const payload = { ...req.body };
-  if (req.file) {
-    payload.sampleFileUrl = publicUploadUrl(req.file.filename);
-    payload.sampleFileName = req.file.originalname || req.file.filename;
+  const files = Array.isArray(req.files) ? req.files : [];
+  if (files.length) {
+    payload.sampleFiles = files.map((f) => ({
+      url: publicUploadUrl(f.filename),
+      name: f.originalname || f.filename,
+    }));
+    // Mirror the first file into the legacy fields so older views keep working.
+    payload.sampleFileUrl = payload.sampleFiles[0].url;
+    payload.sampleFileName = payload.sampleFiles[0].name;
   }
 
   const doc = await PostProcessorRequest.create(payload);
@@ -300,8 +306,8 @@ export const requestPostProcessor = asyncHandler(async (req, res) => {
       replyTo: payload.email,
       // Attach the uploaded sample NC file so the team gets it directly in the
       // email rather than only a link.
-      attachments: req.file
-        ? [{ filename: payload.sampleFileName || req.file.filename, path: req.file.path }]
+      attachments: files.length
+        ? files.map((f) => ({ filename: f.originalname || f.filename, path: f.path }))
         : undefined,
     }),
   );

@@ -62,7 +62,7 @@ const ncUpload = multer({
       cb(null, `pp-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
     },
   }),
-  limits: { fileSize: 5 * 1024 * 1024, files: 1 },
+  limits: { fileSize: 5 * 1024 * 1024, files: 5 },
   fileFilter: (_req, file, cb) => {
     const ext = path.extname(path.basename(file.originalname || "")).toLowerCase();
     cb(null, NC_EXT.has(ext));
@@ -72,7 +72,8 @@ const ncUpload = multer({
 formsRouter.post(
   "/post-processor-request",
   formLimiter,
-  ncUpload.single("sampleFile"),
+  // Accept up to 5 sample programs (field name "sampleFiles").
+  ncUpload.array("sampleFiles", 5),
   validate({ body: postProcessorBody }),
   requestPostProcessor,
 );

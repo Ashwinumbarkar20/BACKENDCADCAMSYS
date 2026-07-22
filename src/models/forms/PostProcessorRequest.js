@@ -12,6 +12,12 @@ const PostProcessorRequestSchema = new mongoose.Schema(
     controller: { type: String, default: "", trim: true },
     technology: { type: String, default: "", trim: true }, // plasma, laser, punch…
     notes: { type: String, default: "" },
+    // Multiple uploaded sample programs.
+    sampleFiles: {
+      type: [new mongoose.Schema({ url: String, name: String }, { _id: false })],
+      default: [],
+    },
+    // Legacy single-file fields, kept so existing records still render.
     sampleFileUrl: { type: String, default: "" },
     sampleFileName: { type: String, default: "" },
     sourcePage: { type: String, default: "" },

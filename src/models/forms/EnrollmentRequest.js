@@ -6,6 +6,7 @@ const EnrollmentRequestSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true, lowercase: true },
     company: { type: String, default: "", trim: true },
+    mobile: { type: String, default: "", trim: true },
     programme: { type: String, default: "", trim: true },
     message: { type: String, default: "" },
     sourcePage: { type: String, default: "" },
