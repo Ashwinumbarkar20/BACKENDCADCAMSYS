@@ -133,7 +133,7 @@ function fieldsTable(fields) {
  * Generic send. Returns { sent: boolean, skipped?: string, error?: string }.
  * Never throws — emails are best-effort and must not block form submissions.
  */
-export async function sendMail({ to, subject, html, text, replyTo }) {
+export async function sendMail({ to, subject, html, text, replyTo, attachments }) {
   const t = getTransporter();
   if (!t) return { sent: false, skipped: "no-smtp-configured" };
   if (!to || (Array.isArray(to) && to.length === 0)) {
@@ -147,6 +147,8 @@ export async function sendMail({ to, subject, html, text, replyTo }) {
       html,
       text,
       replyTo,
+      // nodemailer attachments: [{ filename, path }]
+      ...(Array.isArray(attachments) && attachments.length ? { attachments } : {}),
     });
     return { sent: true, messageId: info.messageId };
   } catch (err) {
@@ -160,7 +162,7 @@ export async function sendMail({ to, subject, html, text, replyTo }) {
  * Notify the admin team that a new lead arrived. `kind` is shown in the
  * subject so the recipient can route in their inbox.
  */
-export async function notifyAdminLead({ kind, fields, replyTo }) {
+export async function notifyAdminLead({ kind, fields, replyTo, attachments }) {
   if (ADMIN_TO.length === 0) {
     // eslint-disable-next-line no-console
     console.warn(
@@ -174,7 +176,7 @@ export async function notifyAdminLead({ kind, fields, replyTo }) {
     .map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`)
     .join("\n")}`;
   const html = `<h2 style="font-family:Arial,sans-serif;">New ${escapeHtml(kind)}</h2>${fieldsTable(fields)}<p style="font-family:Arial,sans-serif;font-size:12px;color:#666;">Submitted via cadcamsys.com</p>`;
-  const result = await sendMail({ to: ADMIN_TO, subject, html, text, replyTo });
+  const result = await sendMail({ to: ADMIN_TO, subject, html, text, replyTo, attachments });
   if (result.sent) {
     // eslint-disable-next-line no-console
     console.log(`[email] Owner notified (${kind}) → ${ADMIN_TO.join(", ")}`);

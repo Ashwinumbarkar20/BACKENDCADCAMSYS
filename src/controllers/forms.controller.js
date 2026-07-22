@@ -298,6 +298,11 @@ export const requestPostProcessor = asyncHandler(async (req, res) => {
       kind: `Post-processor request — ${payload.machineBrand || "machine"}`,
       fields: payload,
       replyTo: payload.email,
+      // Attach the uploaded sample NC file so the team gets it directly in the
+      // email rather than only a link.
+      attachments: req.file
+        ? [{ filename: payload.sampleFileName || req.file.filename, path: req.file.path }]
+        : undefined,
     }),
   );
   notify(
