@@ -67,7 +67,9 @@ export const jobApplicationBody = z.object({
   email: z.string().email(),
   phone: z.string().trim().max(40).optional(),
   coverLetter: optStr,
-  resumeUrl: optShortStr,
+  careerTitle: optShortStr,
+  sourcePage: optShortStr,
+  botField: z.string().max(200).optional(),
 });
 
 // Gated PDF download (product/industry brochure). name + mobile + email are

@@ -225,7 +225,14 @@ export const requestPdfDownload = asyncHandler(async (req, res) => {
 });
 
 export const applyJob = asyncHandler(async (req, res) => {
-  const doc = await JobApplication.create(req.body);
+  if (req.body.botField) return created(res, { received: true });
+  delete req.body.botField;
+  const payload = { ...req.body };
+  if (req.file) {
+    payload.resumeUrl = publicUploadUrl(req.file.filename);
+    payload.resumeName = req.file.originalname || req.file.filename;
+  }
+  const doc = await JobApplication.create(payload);
   notify(linkSubmissionToVisitor(req, "job-application", doc._id));
 
   // Try to enrich the admin email with the job title (best-effort, ignored on failure).
@@ -240,8 +247,11 @@ export const applyJob = asyncHandler(async (req, res) => {
   notify(
     notifyAdminLead({
       kind: careerTitle ? `job application — ${careerTitle}` : "job application",
-      fields: { ...req.body, careerTitle },
-      replyTo: req.body.email,
+      fields: { ...payload, careerTitle },
+      replyTo: payload.email,
+      attachments: req.file
+        ? [{ filename: payload.resumeName || req.file.filename, path: req.file.path }]
+        : undefined,
     }),
   );
   notify(

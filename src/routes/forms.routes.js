@@ -46,7 +46,19 @@ formsRouter.post("/book-consultation", formLimiter, validate({ body: consultatio
 formsRouter.post("/support-request", formLimiter, validate({ body: supportRequestBody }), createSupportRequest);
 formsRouter.post("/roi-request", formLimiter, validate({ body: roiRequestBody }), requestRoi);
 formsRouter.post("/newsletter", formLimiter, validate({ body: newsletterBody }), subscribeNewsletter);
-formsRouter.post("/job-application", formLimiter, validate({ body: jobApplicationBody }), applyJob);
+const RESUME_EXT = new Set([".pdf", ".doc", ".docx", ".rtf", ".odt", ".txt"]);
+const resumeUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, getUploadDir()),
+    filename: (_req, file, cb) => {
+      const ext = path.extname(path.basename(file.originalname || "")).toLowerCase();
+      cb(null, `cv-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
+    },
+  }),
+  limits: { fileSize: 8 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, cb) => cb(null, RESUME_EXT.has(path.extname(path.basename(file.originalname || "")).toLowerCase())),
+});
+formsRouter.post("/job-application", formLimiter, resumeUpload.single("resume"), validate({ body: jobApplicationBody }), applyJob);
 formsRouter.post("/pdf-download", formLimiter, validate({ body: pdfDownloadBody }), requestPdfDownload);
 formsRouter.post("/enroll", formLimiter, validate({ body: enrollmentBody }), requestEnrollment);
 

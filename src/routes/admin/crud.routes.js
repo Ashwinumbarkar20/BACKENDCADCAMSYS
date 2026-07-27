@@ -83,7 +83,16 @@ function mountCrud(router, resource, Model, options = {}) {
   );
 }
 
+import { deleteLeadAttachment } from "../../controllers/admin/leadAttachment.controller.js";
+
 export const adminCrudRouter = Router();
+
+// Remove only the uploaded file(s) from a lead (keeps the record). Owner-gated.
+adminCrudRouter.delete(
+  "/leads/:segment/:id/attachment",
+  requirePermission("leads", "delete"),
+  deleteLeadAttachment,
+);
 
 mountCrud(adminCrudRouter, "pages", Page);
 mountCrud(adminCrudRouter, "solutions", Solution, {

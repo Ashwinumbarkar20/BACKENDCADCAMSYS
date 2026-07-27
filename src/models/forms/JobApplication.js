@@ -7,6 +7,9 @@ const JobApplicationSchema = new mongoose.Schema(
     email: { type: String, required: true, index: true },
     phone: { type: String, default: "" },
     resume: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
+    resumeUrl: { type: String, default: "" },
+    resumeName: { type: String, default: "" },
+    careerTitle: { type: String, default: "" },
     coverLetter: { type: String, default: "" },
   },
   { timestamps: true }
