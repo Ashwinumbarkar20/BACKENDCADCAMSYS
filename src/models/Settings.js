@@ -36,6 +36,11 @@ const SettingsSchema = new mongoose.Schema(
     seoDefaults: { type: SeoSchema, default: () => ({}) },
     googleAnalyticsId: { type: String, default: "" },
     zohoBookingUrl: { type: String, default: "" },
+    // Admin-chosen public fonts (Google Fonts family names). Blank = site default.
+    fonts: {
+      heading: { type: String, default: "" },
+      body: { type: String, default: "" },
+    },
     themeId: { type: String, default: "compassion-rose" },
     themeColors: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
     customThemes: {
