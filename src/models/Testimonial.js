@@ -12,7 +12,10 @@ const TestimonialSchema = new mongoose.Schema(
     logo: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
     rating: { type: Number, default: 5, min: 1, max: 5 },
 
+    // `industry` (single) kept for back-compat + filter; derived from
+    // industries[0]. `industries` is the multi-select the admin edits.
     industry: { type: mongoose.Schema.Types.ObjectId, ref: "Industry", index: true },
+    industries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Industry" }],
     // Testimonials link to specific Products only. Solutions are derived from
     // each product's `solution` parent at display time.
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],

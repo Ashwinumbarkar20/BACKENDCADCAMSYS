@@ -39,8 +39,18 @@ export const getTestimonialById = asyncHandler(async (req, res) => {
     .populate([
       { path: "photo" },
       { path: "logo" },
-      { path: "industry", match: publishedMatch, select: "title slug coverImage headline" },
-      { path: "products", match: publishedMatch, select: "title slug shortDescription hero" },
+      {
+        path: "industry",
+        match: publishedMatch,
+        select: "title slug coverImage headline",
+        populate: { path: "coverImage" },
+      },
+      {
+        path: "products",
+        match: publishedMatch,
+        select: "title slug tagline coverImage",
+        populate: { path: "coverImage" },
+      },
       { path: "seo.ogImage" },
       { path: "seo.twitterImage" },
     ])

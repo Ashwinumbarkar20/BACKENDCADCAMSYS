@@ -17,6 +17,12 @@ const NewsSchema = new mongoose.Schema(
 
     // Cross-links to other News articles for "Related news" carousels.
     relatedNews: [{ type: mongoose.Schema.Types.ObjectId, ref: "News" }],
+    // Related content shown on the article page.
+    relatedProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    relatedIndustries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Industry" }],
+    relatedTestimonials: [{ type: mongoose.Schema.Types.ObjectId, ref: "Testimonial" }],
+    relatedBlogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Blog" }],
+    relatedCaseStudies: [{ type: mongoose.Schema.Types.ObjectId, ref: "CaseStudy" }],
 
     seo: { type: SeoSchema, default: () => ({}) },
   },

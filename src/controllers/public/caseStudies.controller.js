@@ -33,8 +33,15 @@ export const getCaseStudyBySlug = asyncHandler(async (req, res) => {
   const doc = await CaseStudy.findOne({ slug: req.params.slug.toLowerCase(), ...publishedMatch })
     .populate([
       { path: "customerLogo" },
+      { path: "sections.images" },
       {
         path: "industry",
+        match: publishedMatch,
+        select: "title slug coverImage headline",
+        populate: [{ path: "coverImage" }],
+      },
+      {
+        path: "industries",
         match: publishedMatch,
         select: "title slug coverImage headline",
         populate: [{ path: "coverImage" }],
@@ -50,6 +57,12 @@ export const getCaseStudyBySlug = asyncHandler(async (req, res) => {
       },
       {
         path: "testimonial",
+        match: publishedMatch,
+        select: "customerName company designation quote photo logo rating",
+        populate: [{ path: "photo" }, { path: "logo" }],
+      },
+      {
+        path: "testimonials",
         match: publishedMatch,
         select: "customerName company designation quote photo logo rating",
         populate: [{ path: "photo" }, { path: "logo" }],

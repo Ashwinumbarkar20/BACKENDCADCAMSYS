@@ -20,7 +20,11 @@ const CaseStudySchema = new mongoose.Schema(
     customerName: { type: String, default: "" },
     customerLogo: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
 
+    // `industry` (single) is kept for list cards + the industry filter; it is
+    // derived from industries[0] on save. `industries` is the multi-select the
+    // admin edits and the public page renders.
     industry: { type: mongoose.Schema.Types.ObjectId, ref: "Industry", index: true },
+    industries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Industry" }],
     // Always link to specific products. The Solution can be derived from each
     // product's `solution` parent when the website needs to group by solution.
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
@@ -31,7 +35,10 @@ const CaseStudySchema = new mongoose.Schema(
     sections: { type: [CaseStudySectionSchema], default: [] },
     results: { type: [ResultSchema], default: [] },
 
+    // `testimonial` (single) kept for back-compat; `testimonials` is the
+    // multi-select the admin edits and the public page renders.
     testimonial: { type: mongoose.Schema.Types.ObjectId, ref: "Testimonial" },
+    testimonials: [{ type: mongoose.Schema.Types.ObjectId, ref: "Testimonial" }],
 
     seo: { type: SeoSchema, default: () => ({}) },
   },

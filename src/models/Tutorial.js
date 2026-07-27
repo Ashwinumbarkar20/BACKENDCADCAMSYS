@@ -12,6 +12,9 @@ const TutorialSchema = new mongoose.Schema(
 
     products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     industries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Industry" }],
+    testimonials: [{ type: mongoose.Schema.Types.ObjectId, ref: "Testimonial" }],
+    blogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Blog" }],
+    caseStudies: [{ type: mongoose.Schema.Types.ObjectId, ref: "CaseStudy" }],
 
     seo: { type: SeoSchema, default: () => ({}) },
   },
