@@ -100,7 +100,6 @@ export const bookConsultation = asyncHandler(async (req, res) => {
   delete req.body.botField;
 
   const { preferredDate: dateYmd, preferredTime, ...rest } = req.body;
-  await assertSlotAvailable(dateYmd, preferredTime);
 
   const payload = {
     ...rest,
