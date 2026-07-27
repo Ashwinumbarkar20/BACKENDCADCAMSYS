@@ -19,6 +19,7 @@ const PageViewSchema = new mongoose.Schema(
     },
 
     viewedAt: { type: Date, default: Date.now, index: true },
+    dwellMs: { type: Number, default: 0 }, // time spent on the page (ms)
   },
   { timestamps: true }
 );

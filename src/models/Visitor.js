@@ -31,6 +31,7 @@ const VisitorSchema = new mongoose.Schema(
     lastSeenAt: { type: Date, default: Date.now, index: true },
 
     pageViewCount: { type: Number, default: 0 },
+    totalDwellMs: { type: Number, default: 0 }, // cumulative time on site (ms)
     sessionCount: { type: Number, default: 0 },
 
     ipHash: { type: String, default: "", index: true },

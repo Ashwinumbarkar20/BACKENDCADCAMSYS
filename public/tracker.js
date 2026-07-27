@@ -64,12 +64,48 @@
     } catch (e) { /* ignore network errors */ }
   }
 
+  // ---- Time-on-page (dwell) tracking ----
+  var currentPath = null;
+  var enteredAt = 0;
+  var accumulated = 0; // ms accrued on the current page while it was visible
+
+  function flushDwell() {
+    if (!currentPath || !enteredAt) return;
+    if (document.visibilityState !== "hidden") {
+      accumulated += Date.now() - enteredAt;
+      enteredAt = Date.now();
+    }
+    if (accumulated >= 1000) {
+      send({ type: "dwell", path: currentPath, ms: accumulated });
+      accumulated = 0;
+    }
+  }
+
+  function startTimer(path) {
+    flushDwell();
+    currentPath = path;
+    accumulated = 0;
+    enteredAt = Date.now();
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") {
+      if (enteredAt) { accumulated += Date.now() - enteredAt; enteredAt = 0; }
+      flushDwell();
+    } else {
+      enteredAt = Date.now();
+    }
+  });
+  window.addEventListener("pagehide", flushDwell);
+  window.addEventListener("beforeunload", flushDwell);
+
   function pageview(opts) {
     opts = opts || {};
     var path = opts.path || (window.location.pathname + window.location.search);
     var title = opts.title || document.title || "";
     var referrer = opts.referrer || document.referrer || "";
     send({ path: path, title: title, referrer: referrer, utm: readUtm() });
+    startTimer(path);
   }
 
   // Patch SPA history APIs so single-page apps fire pageviews automatically.

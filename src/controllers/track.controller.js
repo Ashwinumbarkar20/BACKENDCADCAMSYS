@@ -42,6 +42,26 @@ export const trackPageView = asyncHandler(async (req, res) => {
   // Respect DNT signal — store nothing.
   if (req.headers.dnt === "1") return ok(res, { tracked: false, reason: "dnt" });
 
+  // Dwell beacon: {type:"dwell", path, ms} sent when the visitor leaves a page.
+  // Add the time to that page's most recent view and the visitor's total.
+  if ((req.body || {}).type === "dwell") {
+    const visitorId = readCookie(req, VISITOR_COOKIE);
+    const ms = Math.min(Math.max(Number(req.body.ms) || 0, 0), 1000 * 60 * 30); // cap 30 min
+    if (visitorId && ms > 0) {
+      const dwellPath = safeStr(req.body.path || "/", 1024);
+      await PageView.findOneAndUpdate(
+        { visitorId, path: dwellPath },
+        { $inc: { dwellMs: ms } },
+        { sort: { viewedAt: -1 } },
+      );
+      await Visitor.updateOne(
+        { visitorId },
+        { $inc: { totalDwellMs: ms }, $set: { lastSeenAt: new Date() } },
+      );
+    }
+    return ok(res, { tracked: true, type: "dwell" });
+  }
+
   const ua = safeStr(req.headers["user-agent"], 512);
   if (isBotUserAgent(ua)) return ok(res, { tracked: false, reason: "bot" });
 
@@ -71,15 +91,15 @@ export const trackPageView = asyncHandler(async (req, res) => {
 
   // Upsert the Visitor row. On first sight, capture the entry context so we
   // can attribute conversions back to the source/landing page later.
+  // Only first-touch, immutable fields go here. Mutable fields (userAgent,
+  // ipHash, device/browser/os) live in $set below — a field must not appear in
+  // both $setOnInsert and $set or Mongo throws a path-conflict error.
   const setOnInsert = {
     visitorId,
     firstSeenAt: new Date(),
     firstReferrer: referrer,
     firstLandingPath: path,
     firstUtm: utm,
-    userAgent: ua,
-    ipHash,
-    ...parsed,
   };
 
   const visitor = await Visitor.findOneAndUpdate(
