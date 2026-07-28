@@ -21,6 +21,8 @@ const CaseStudySchema = new mongoose.Schema(
     customerLogo: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
     // Company/customer photo shown beside the challenge on the public page.
     companyPhoto: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
+    // Optional background image for the page hero (falls back to the gradient).
+    heroImage: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
 
     // `industry` (single) is kept for list cards + the industry filter; it is
     // derived from industries[0] on save. `industries` is the multi-select the

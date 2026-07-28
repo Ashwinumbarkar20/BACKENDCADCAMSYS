@@ -34,6 +34,7 @@ export const getCaseStudyBySlug = asyncHandler(async (req, res) => {
     .populate([
       { path: "customerLogo" },
       { path: "companyPhoto" },
+      { path: "heroImage" },
       { path: "sections.images" },
       {
         path: "industry",
