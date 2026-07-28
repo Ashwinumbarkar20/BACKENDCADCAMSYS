@@ -38,6 +38,8 @@ const BlogSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
+    // Small uppercase label above the title in the hero (blank = the date).
+    eyebrow: { type: String, default: "" },
     excerpt: { type: String, required: true },
 
     // Hero images — Media refs (so the central library + MediaPicker keep
@@ -61,6 +63,7 @@ const BlogSchema = new mongoose.Schema(
     relatedProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     relatedIndustries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Industry" }],
     relatedCaseStudies: [{ type: mongoose.Schema.Types.ObjectId, ref: "CaseStudy" }],
+    relatedTestimonials: [{ type: mongoose.Schema.Types.ObjectId, ref: "Testimonial" }],
 
     seo: { type: SeoSchema, default: () => ({}) },
   },

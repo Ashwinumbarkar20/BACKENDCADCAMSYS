@@ -64,6 +64,12 @@ export const getBlogBySlug = asyncHandler(async (req, res) => {
         select: "title slug customerName customerLogo industry seo",
         populate: [{ path: "customerLogo" }],
       },
+      {
+        path: "relatedTestimonials",
+        match: publishedMatch,
+        select: "customerName company designation quote photo logo rating",
+        populate: [{ path: "photo" }, { path: "logo" }],
+      },
       { path: "seo.ogImage" },
       { path: "seo.twitterImage" },
     ])
