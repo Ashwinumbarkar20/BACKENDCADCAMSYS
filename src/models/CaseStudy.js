@@ -19,6 +19,8 @@ const CaseStudySchema = new mongoose.Schema(
 
     customerName: { type: String, default: "" },
     customerLogo: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
+    // Company/customer photo shown beside the challenge on the public page.
+    companyPhoto: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
 
     // `industry` (single) is kept for list cards + the industry filter; it is
     // derived from industries[0] on save. `industries` is the multi-select the
