@@ -2,6 +2,8 @@ import { Router } from "express";
 import { createCrudControllers } from "../../controllers/crud.controller.js";
 import { validate } from "../../middlewares/validate.js";
 import { objectIdParam } from "../../validations/common.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import { ok } from "../../utils/apiResponse.js";
 import {
   Page,
   Solution,
@@ -95,6 +97,22 @@ adminCrudRouter.delete(
 );
 
 mountCrud(adminCrudRouter, "pages", Page);
+
+// Bulk reorder of solutions — persists the sequence shown on the site (both the
+// Solutions menu and the /solutions page sort by sortOrder). MUST be declared
+// before the `/solutions/:id` route so "reorder" isn't parsed as an id.
+adminCrudRouter.put(
+  "/solutions/reorder",
+  requirePermission("solutions", "edit"),
+  asyncHandler(async (req, res) => {
+    const ids = Array.isArray(req.body?.order) ? req.body.order.filter(Boolean) : [];
+    await Promise.all(
+      ids.map((id, index) => Solution.updateOne({ _id: id }, { $set: { sortOrder: index } })),
+    );
+    return ok(res, { updated: ids.length });
+  }),
+);
+
 mountCrud(adminCrudRouter, "solutions", Solution, {
   populate: [
     { path: "coverImage" },

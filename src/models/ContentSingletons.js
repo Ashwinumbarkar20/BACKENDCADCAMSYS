@@ -19,6 +19,8 @@ function buildContentSingletonSchema() {
   return new mongoose.Schema(
     {
       singletonKey: { type: String, default: "global", unique: true, index: true },
+      // Small uppercase label shown above the page title (hero eyebrow).
+      eyebrow: { type: String, default: "" },
       heading: { type: String, default: "" },
       tagline: { type: String, default: "" },
       heroImage: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
