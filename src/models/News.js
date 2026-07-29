@@ -7,6 +7,9 @@ const NewsSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
+    // Category label shown in the article eyebrow (e.g. "Press Release", "Product
+    // News"). Blank falls back to "News".
+    eyebrow: { type: String, default: "" },
 
     // Cover image used on news cards in the list view. Media ref (not a URL)
     // so it goes through the central library — same pattern as Blog/Industry.
