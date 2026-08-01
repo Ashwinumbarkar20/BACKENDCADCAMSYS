@@ -86,7 +86,12 @@ export const getPublicSolutionsPage = asyncHandler(async (_req, res) => {
 
 export const getPublicAbout = asyncHandler(async (_req, res) => {
   // Populate media refs so the public site receives resolvable image URLs.
-  const about = await getSingleton(About, ["heroImage", "seo.ogImage", "seo.twitterImage"]);
+  const about = await getSingleton(About, [
+    "heroImage",
+    { path: "owner.member", select: "name designation bio photo", populate: { path: "photo" } },
+    "seo.ogImage",
+    "seo.twitterImage",
+  ]);
   return ok(res, about);
 });
 

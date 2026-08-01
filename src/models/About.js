@@ -50,6 +50,19 @@ const AboutSchema = new mongoose.Schema(
     intro: { type: String, default: "" }, // rich text (HTML) intro paragraph(s)
     mission: { type: String, default: "" },
     vision: { type: String, default: "" },
+
+    // Owner / leadership spotlight — shown below Mission & Vision. The admin picks
+    // an existing Team Member; the section then shows that person's photo, name,
+    // designation, and bio.
+    owner: {
+      member: { type: mongoose.Schema.Types.ObjectId, ref: "TeamMember" },
+      heading: { type: String, default: "Leadership" },
+      intro: { type: String, default: "" },
+    },
+
+    // Heading/intro for the highlights ("what sets us apart") cards section.
+    highlightsHeading: { type: String, default: "" },
+    highlightsIntro: { type: String, default: "" },
     highlights: { type: [HighlightSchema], default: [] },
 
     // Merged-in sections (were separate nav items / pages).
