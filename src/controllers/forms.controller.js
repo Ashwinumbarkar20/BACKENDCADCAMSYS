@@ -93,6 +93,31 @@ export const submitContact = asyncHandler(async (req, res) => {
   return created(res, doc);
 });
 
+// Campaign lead — stored as a ContactSubmission (so it appears in the existing
+// leads list) tagged with the campaign name in `sourcePage`.
+export const submitCampaignLead = asyncHandler(async (req, res) => {
+  if (req.body.botField) {
+    return created(res, { received: true });
+  }
+  const name = String(req.body.name || "").trim();
+  const [firstName, ...rest] = name.split(/\s+/);
+  const payload = {
+    name,
+    firstName: firstName || name,
+    lastName: rest.join(" "),
+    email: String(req.body.email || "").trim(),
+    phone: String(req.body.phone || "").trim(),
+    company: String(req.body.company || "").trim(),
+    sourcePage: `Campaign: ${String(req.body.campaign || "").trim() || "Campaign"}`,
+  };
+  const doc = await ContactSubmission.create(payload);
+  notify(linkSubmissionToVisitor(req, "contact", doc._id));
+  notify(
+    notifyAdminLead({ kind: "campaign lead", fields: payload, replyTo: payload.email }),
+  );
+  return created(res, doc);
+});
+
 export const bookConsultation = asyncHandler(async (req, res) => {
   if (req.body.botField) {
     return created(res, { received: true });

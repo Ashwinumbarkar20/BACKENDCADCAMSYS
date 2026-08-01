@@ -11,6 +11,7 @@ import {
   requestRoi,
   requestPdfDownload,
   submitContact,
+  submitCampaignLead,
   subscribeNewsletter,
   requestEnrollment,
   requestPostProcessor,
@@ -18,6 +19,7 @@ import {
 import { validate } from "../middlewares/validate.js";
 import {
   contactBody,
+  campaignBody,
   consultationBody,
   supportRequestBody,
   newsletterBody,
@@ -42,6 +44,7 @@ const formLimiter = rateLimit({
 
 formsRouter.get("/appointment-slots", formLimiter, getAppointmentSlots);
 formsRouter.post("/contact", formLimiter, validate({ body: contactBody }), submitContact);
+formsRouter.post("/campaign-lead", formLimiter, validate({ body: campaignBody }), submitCampaignLead);
 formsRouter.post("/book-consultation", formLimiter, validate({ body: consultationBody }), bookConsultation);
 formsRouter.post("/support-request", formLimiter, validate({ body: supportRequestBody }), createSupportRequest);
 formsRouter.post("/roi-request", formLimiter, validate({ body: roiRequestBody }), requestRoi);

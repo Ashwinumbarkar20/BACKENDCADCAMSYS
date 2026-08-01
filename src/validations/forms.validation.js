@@ -4,6 +4,16 @@ const optStr = z.string().trim().max(2000).optional();
 const optShortStr = z.string().trim().max(200).optional();
 const optEmail = z.string().email().optional();
 
+// Campaign lead — the quick navbar campaign modal (name / email / mobile / company).
+export const campaignBody = z.object({
+  name: z.string().trim().min(1).max(200),
+  email: z.string().email(),
+  phone: z.string().trim().max(40).optional(),
+  company: optShortStr,
+  campaign: optShortStr,
+  botField: z.string().max(200).optional(),
+});
+
 export const contactBody = z.object({
   firstName: z.string().trim().min(1).max(100),
   lastName: z.string().trim().min(1).max(100),

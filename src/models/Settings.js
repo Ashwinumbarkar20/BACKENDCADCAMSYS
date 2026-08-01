@@ -36,6 +36,13 @@ const SettingsSchema = new mongoose.Schema(
     seoDefaults: { type: SeoSchema, default: () => ({}) },
     googleAnalyticsId: { type: String, default: "" },
     zohoBookingUrl: { type: String, default: "" },
+    // Optional campaign CTA shown in the navbar beside "Book Demo". When enabled,
+    // clicking it opens a lead modal; on submit the visitor is redirected to `url`.
+    campaign: {
+      enabled: { type: Boolean, default: false },
+      label: { type: String, default: "" },
+      url: { type: String, default: "" },
+    },
     // Admin-chosen public fonts (Google Fonts family names). Blank = site default.
     fonts: {
       heading: { type: String, default: "" },
