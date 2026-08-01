@@ -29,6 +29,7 @@ export const getNewsBySlug = asyncHandler(async (req, res) => {
   const doc = await News.findOne({ slug: req.params.slug.toLowerCase(), ...publishedMatch })
     .populate([
       { path: "coverImage" },
+      { path: "pdf" },
       {
         path: "relatedNews",
         match: publishedMatch,

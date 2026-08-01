@@ -16,6 +16,8 @@ const NewsSchema = new mongoose.Schema(
     coverImage: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
 
     overview: { type: String, default: "" },
+    // Optional downloadable PDF (press kit, full release, spec sheet).
+    pdf: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },
     sections: { type: [NewsSectionSchema], default: [] },
 
     // Cross-links to other News articles for "Related news" carousels.
