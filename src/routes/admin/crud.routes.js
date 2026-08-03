@@ -57,6 +57,11 @@ import {
 } from "../../controllers/admin/roles.controller.js";
 import { leadNewCounts } from "../../controllers/admin/leads.controller.js";
 import {
+  rescheduleBookingAdmin,
+  cancelBookingAdmin,
+  retryMeetingsAdmin,
+} from "../../controllers/admin/bookings.controller.js";
+import {
   requireOwner,
   requirePermission,
   requirePublishIfStatusChanging,
@@ -172,6 +177,27 @@ adminCrudRouter.put("/leads/visitors/:id", requirePermission("visitors", "edit")
 adminCrudRouter.delete("/leads/visitors/:id", requirePermission("visitors", "delete"), idValidator, deleteVisitor);
 
 adminCrudRouter.post("/leads/new-counts", requirePermission("leads", "view"), leadNewCounts);
+
+// Demo bookings — reschedule/cancel keep the Zoho meeting in step, so they are
+// explicit routes rather than plain CRUD edits. Declared before mountCrud so
+// "reschedule" is never parsed as a document id.
+adminCrudRouter.put(
+  "/leads/consultation-bookings/:id/reschedule",
+  requirePermission("leads", "edit"),
+  idValidator,
+  rescheduleBookingAdmin,
+);
+adminCrudRouter.put(
+  "/leads/consultation-bookings/:id/cancel",
+  requirePermission("leads", "edit"),
+  idValidator,
+  cancelBookingAdmin,
+);
+adminCrudRouter.post(
+  "/leads/consultation-bookings-retry",
+  requirePermission("leads", "edit"),
+  retryMeetingsAdmin,
+);
 
 // Form submissions — all gated under the "leads" permission bucket.
 mountCrud(adminCrudRouter, "leads/contact-submissions", ContactSubmission, { permissionKey: "leads" });

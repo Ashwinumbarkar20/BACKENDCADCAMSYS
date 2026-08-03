@@ -82,6 +82,11 @@ const ADMIN_TO = (
   .map((s) => s.trim())
   .filter(Boolean);
 
+/** Where lead/booking notifications go. Copy, so callers can't mutate it. */
+export function getAdminRecipients() {
+  return [...ADMIN_TO];
+}
+
 function maskEmail(email) {
   const [user, domain] = String(email).split("@");
   if (!domain) return "(invalid)";

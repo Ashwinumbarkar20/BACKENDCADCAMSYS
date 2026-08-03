@@ -4,6 +4,8 @@ import { connectDb } from "./config/db.js";
 import { ensureUploadDir, getUploadDir } from "./config/uploads.js";
 import { recoverAllUploadSources, getUploadStorageDiagnostics } from "./utils/uploadsBackup.js";
 import { ensureOwnerUser, upgradeLegacyOwners } from "./services/bootstrapAdmin.js";
+import { retryPendingMeetings } from "./services/bookingService.js";
+import { isZohoConfigured } from "./config/zoho.js";
 
 async function main() {
   const uploadPath = ensureUploadDir();
@@ -66,6 +68,31 @@ async function main() {
     // eslint-disable-next-line no-console
     console.log(`API running on http://localhost:${env.PORT}`);
   });
+
+  startPendingMeetingRetries();
+}
+
+/**
+ * FRD §18 — bookings whose Zoho meeting failed are retried in the background.
+ * unref() so the timer never keeps the process alive on shutdown.
+ */
+function startPendingMeetingRetries() {
+  if (!isZohoConfigured()) {
+    // eslint-disable-next-line no-console
+    console.log("[zoho] not configured — meeting creation is skipped, bookings save as pending.");
+    return;
+  }
+  const everyMs = 10 * 60 * 1000;
+  const tick = () => {
+    retryPendingMeetings().catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error("[zoho] retry sweep failed:", err?.message);
+    });
+  };
+  setTimeout(tick, 60 * 1000).unref();
+  setInterval(tick, everyMs).unref();
+  // eslint-disable-next-line no-console
+  console.log(`[zoho] pending-meeting retries every ${everyMs / 60000} min`);
 }
 
 main().catch((err) => {

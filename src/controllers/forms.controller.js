@@ -18,10 +18,13 @@ import {
 import { notifyAdminLead, sendLeadConfirmation } from "../services/email.service.js";
 import {
   assertSlotAvailable,
+  assertNotDuplicate,
   preferredDateFromYmd,
   getSlotsForDate,
   getUpcomingAvailability,
 } from "../services/appointmentSlots.js";
+import { provisionMeeting } from "../services/bookingService.js";
+import { MEETING_DEFAULTS } from "../config/zoho.js";
 import { readCookie, computeVisitorScore, VISITOR_COOKIE } from "../utils/track.js";
 import { publicUploadUrl } from "../config/uploads.js";
 
@@ -125,6 +128,14 @@ export const submitCampaignLead = asyncHandler(async (req, res) => {
   return created(res, doc);
 });
 
+/**
+ * Book a demo (FRD §5): validate → check the slot → save → create the Zoho
+ * meeting → email customer + organiser with calendar invites.
+ *
+ * The booking is saved *before* Zoho is called. If the meeting fails the record
+ * survives as `pending_meeting` and is retried, rather than the visitor seeing
+ * an error for something that isn't their problem.
+ */
 export const bookConsultation = asyncHandler(async (req, res) => {
   if (req.body.botField) {
     return created(res, { received: true });
@@ -132,35 +143,41 @@ export const bookConsultation = asyncHandler(async (req, res) => {
   delete req.body.botField;
 
   const { preferredDate: dateYmd, preferredTime, ...rest } = req.body;
+  const email = String(rest.email || "").trim();
 
-  const payload = {
+  // Throws 400/409 with a message the form shows as-is.
+  await assertSlotAvailable(dateYmd, preferredTime);
+  await assertNotDuplicate({ email, ymd: dateYmd, time: preferredTime });
+
+  const doc = await ConsultationBooking.create({
     ...rest,
+    email,
     preferredDate: preferredDateFromYmd(dateYmd),
+    bookingYmd: dateYmd,
     preferredTime,
     sourcePage: rest.sourcePage || "",
-  };
+    meetingTitle: MEETING_DEFAULTS.topic,
+    status: "pending_meeting",
+  });
 
-  const doc = await ConsultationBooking.create(payload);
   notify(linkSubmissionToVisitor(req, "consultation", doc._id));
-  notify(
-    notifyAdminLead({
-      kind: "consultation booking",
-      fields: {
-        ...payload,
-        preferredDate: dateYmd,
-        appointment: `${dateYmd} at ${preferredTime} IST`,
-      },
-      replyTo: payload.email,
-    }),
-  );
-  notify(
-    sendLeadConfirmation({
-      to: payload.email,
-      kind: "appointment booking",
-      name: payload.name,
-    }),
-  );
-  return created(res, doc);
+
+  // Creates the meeting and sends both branded emails with the .ics invite.
+  const booking = await provisionMeeting(doc);
+
+  return created(res, {
+    _id: booking._id,
+    status: booking.status,
+    name: booking.name,
+    email: booking.email,
+    bookingYmd: booking.bookingYmd,
+    preferredTime: booking.preferredTime,
+    durationMinutes: MEETING_DEFAULTS.durationMinutes,
+    meetingTitle: booking.meetingTitle,
+    meetingId: booking.meetingId,
+    joinUrl: booking.joinUrl,
+    meetingPassword: booking.meetingPassword,
+  });
 });
 
 export const getAppointmentSlots = asyncHandler(async (req, res) => {

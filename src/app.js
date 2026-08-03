@@ -8,6 +8,7 @@ import { env } from "./config/env.js";
 import { getUploadDir, UPLOAD_PUBLIC_PATH } from "./config/uploads.js";
 import { getUploadStorageDiagnostics } from "./utils/uploadsBackup.js";
 import { getEmailDiagnostics } from "./services/email.service.js";
+import { getZohoDiagnostics } from "./config/zoho.js";
 import { adminCors, publicCors } from "./middlewares/cors.js";
 import { authRouter } from "./routes/auth.routes.js";
 import { publicGlobalRouter } from "./routes/public/global.routes.js";
@@ -76,6 +77,7 @@ export function createApp() {
       version: "1.0.8",
       deployTest: "faq-email-diagnostics",
       email: getEmailDiagnostics(),
+      zoho: getZohoDiagnostics(),
       persistentStorage: storage.persistentStorage,
       hostingerDetected: storage.hostingerDetected,
       uploadDir: storage.uploadDir,
