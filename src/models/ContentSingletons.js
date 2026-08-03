@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { SeoSchema } from "../schemas/seo.schema.js";
+import { PRIVACY_DEFAULTS } from "../config/privacyPolicyDefault.js";
 
 // A reusable "item" — icon + title + description — rendered as a card/row on the
 // public page (e.g. a service, a capability, a reason).
@@ -41,10 +42,16 @@ export const ServicePage = mongoose.model("ServicePage", buildContentSingletonSc
 export const BookDemoPage = mongoose.model("BookDemoPage", buildContentSingletonSchema());
 export const ContactPage = mongoose.model("ContactPage", buildContentSingletonSchema());
 
-// Privacy policy. `intro` holds the whole policy as rich text; while it is
-// empty the public page keeps rendering its built-in policy, so switching to
-// admin-managed content is opt-in rather than a blank page on deploy.
-export const PrivacyPage = mongoose.model("PrivacyPage", buildContentSingletonSchema());
+// Privacy policy. `intro` holds the whole policy as rich text, pre-filled with
+// the standard policy so the admin opens the page with real content to edit
+// rather than a blank field. The public page still falls back to its built-in
+// copy if the field is ever emptied.
+const PrivacyPageSchema = buildContentSingletonSchema();
+PrivacyPageSchema.path("eyebrow").default(PRIVACY_DEFAULTS.eyebrow);
+PrivacyPageSchema.path("heading").default(PRIVACY_DEFAULTS.heading);
+PrivacyPageSchema.path("tagline").default(PRIVACY_DEFAULTS.tagline);
+PrivacyPageSchema.path("intro").default(PRIVACY_DEFAULTS.intro);
+export const PrivacyPage = mongoose.model("PrivacyPage", PrivacyPageSchema);
 
 // ROI Center — intro content around the public ROI calculator.
 export const Roi = mongoose.model("Roi", buildContentSingletonSchema());
