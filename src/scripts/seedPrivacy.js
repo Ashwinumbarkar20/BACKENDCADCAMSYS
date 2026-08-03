@@ -28,7 +28,9 @@ async function main() {
   const filled = [];
   const skipped = [];
   for (const [field, value] of Object.entries(PRIVACY_DEFAULTS)) {
-    if (String(doc[field] ?? "").trim()) {
+    const current = doc[field];
+    const isEmpty = Array.isArray(current) ? current.length === 0 : !String(current ?? "").trim();
+    if (!isEmpty) {
       skipped.push(field);
       continue;
     }

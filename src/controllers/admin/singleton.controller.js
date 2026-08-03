@@ -28,7 +28,11 @@ export function createSingletonControllers(Model, options = {}) {
       // Only ever fills blanks — anything already edited is left alone.
       let changed = false;
       for (const [field, value] of Object.entries(ensureDefaults)) {
-        if (String(doc[field] ?? "").trim()) continue;
+        const current = doc[field];
+        const isEmpty = Array.isArray(current)
+          ? current.length === 0
+          : !String(current ?? "").trim();
+        if (!isEmpty) continue;
         doc[field] = value;
         changed = true;
       }
