@@ -9,16 +9,23 @@
  * With the schema in hand we can be precise: drop "" only where it would
  * actually fail to cast. Without a schema we keep the old, blunt behaviour.
  */
-function shouldDropEmpty(schema, path) {
-  if (!schema) return true;
+/**
+ * How to treat `""` for this path: "keep" it, "drop" it, or write "null".
+ *
+ * An ObjectId can't cast "" — but dropping it meant a removed image or relation
+ * could never be saved, because the cleared field simply vanished from the
+ * $set. Those become an explicit null, which casts fine and clears the ref.
+ */
+function emptyStringAction(schema, path) {
+  if (!schema) return "drop";
   const entry = schema.path(path);
-  if (!entry) return true;
+  if (!entry) return "drop";
   const kind = entry.instance;
-  if (kind === "ObjectID" || kind === "ObjectId") return true;
-  if (kind === "Number" || kind === "Date" || kind === "Boolean") return true;
-  if (Array.isArray(entry.enumValues) && entry.enumValues.length > 0) return true;
-  if (entry.options?.enum) return true;
-  return false;
+  if (kind === "ObjectID" || kind === "ObjectId") return "null";
+  if (kind === "Number" || kind === "Date" || kind === "Boolean") return "drop";
+  if (Array.isArray(entry.enumValues) && entry.enumValues.length > 0) return "drop";
+  if (entry.options?.enum) return "drop";
+  return "keep";
 }
 
 function cleanObject(obj, schema, prefix = "") {
@@ -32,7 +39,12 @@ function cleanObject(obj, schema, prefix = "") {
 }
 
 function cleanValue(value, schema, path) {
-  if (value === "") return shouldDropEmpty(schema, path) ? undefined : "";
+  if (value === "") {
+    const action = emptyStringAction(schema, path);
+    if (action === "drop") return undefined;
+    return action === "null" ? null : "";
+  }
+  // An explicit null from the admin means "clear this" — pass it through.
   if (value == null) return value;
 
   if (Array.isArray(value)) {
