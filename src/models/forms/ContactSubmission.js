@@ -13,6 +13,8 @@ const ContactSubmissionSchema = new mongoose.Schema(
     levelOfInterest: { type: String, default: "" },
     industry: { type: String, default: "" },
     message: { type: String, default: "" },
+    // Marketing opt-in ticked on the contact form.
+    consent: { type: Boolean, default: false },
     sourcePage: { type: String, default: "" },
   },
   { timestamps: true }

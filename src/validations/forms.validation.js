@@ -4,13 +4,21 @@ const optStr = z.string().trim().max(2000).optional();
 const optShortStr = z.string().trim().max(200).optional();
 const optEmail = z.string().email().optional();
 
-// Campaign lead — the quick navbar campaign modal (name / email / mobile / company).
+// Campaign lead — the quick navbar campaign modal. Every visible field is
+// mandatory: a campaign lead without a phone or company is not worth chasing.
 export const campaignBody = z.object({
-  name: z.string().trim().min(1).max(200),
-  email: z.string().email(),
-  phone: z.string().trim().max(40).optional(),
-  company: optShortStr,
+  name: z.string().trim().min(1, "Name is required").max(200),
+  email: z.string().trim().email("Enter a valid email address"),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "Enter a valid mobile number")
+    .max(40)
+    .regex(/^[\d+][\d\s()-]*$/, "Enter a valid mobile number"),
+  company: z.string().trim().min(1, "Company is required").max(200),
   campaign: optShortStr,
+  destinationUrl: optStr,
+  sourcePage: optShortStr,
   botField: z.string().max(200).optional(),
 });
 
@@ -28,6 +36,7 @@ export const contactBody = z.object({
     .optional(),
   industry: optShortStr,
   message: optStr,
+  consent: z.boolean().optional(),
   sourcePage: optShortStr,
   // Honeypot: a hidden field real users never fill. Declared here so it
   // survives validation (Zod strips unknown keys) and reaches the controller,

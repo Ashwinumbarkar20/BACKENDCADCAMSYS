@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { created } from "../utils/apiResponse.js";
 import {
   ContactSubmission,
+  CampaignLead,
   ConsultationBooking,
   SupportRequest,
   NewsletterSubscriber,
@@ -93,28 +94,34 @@ export const submitContact = asyncHandler(async (req, res) => {
   return created(res, doc);
 });
 
-// Campaign lead — stored as a ContactSubmission (so it appears in the existing
-// leads list) tagged with the campaign name in `sourcePage`.
+// Campaign lead — the navbar campaign modal. Stored in its own collection so it
+// shows up under Leads → Campaign Leads in the admin, next to every other inbox.
 export const submitCampaignLead = asyncHandler(async (req, res) => {
   if (req.body.botField) {
     return created(res, { received: true });
   }
-  const name = String(req.body.name || "").trim();
-  const [firstName, ...rest] = name.split(/\s+/);
+  delete req.body.botField;
+
   const payload = {
-    name,
-    firstName: firstName || name,
-    lastName: rest.join(" "),
+    campaign: String(req.body.campaign || "").trim() || "Campaign",
+    name: String(req.body.name || "").trim(),
     email: String(req.body.email || "").trim(),
     phone: String(req.body.phone || "").trim(),
     company: String(req.body.company || "").trim(),
-    sourcePage: `Campaign: ${String(req.body.campaign || "").trim() || "Campaign"}`,
+    destinationUrl: String(req.body.destinationUrl || "").trim(),
+    sourcePage: String(req.body.sourcePage || "").trim(),
   };
-  const doc = await ContactSubmission.create(payload);
-  notify(linkSubmissionToVisitor(req, "contact", doc._id));
+
+  const doc = await CampaignLead.create(payload);
+  notify(linkSubmissionToVisitor(req, "campaign", doc._id));
   notify(
-    notifyAdminLead({ kind: "campaign lead", fields: payload, replyTo: payload.email }),
+    notifyAdminLead({
+      kind: `campaign lead — ${payload.campaign}`,
+      fields: payload,
+      replyTo: payload.email,
+    }),
   );
+  notify(sendLeadConfirmation({ to: payload.email, kind: "enquiry", name: payload.name }));
   return created(res, doc);
 });
 

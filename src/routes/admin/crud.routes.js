@@ -18,6 +18,7 @@ import {
   Career,
   News,
   ContactSubmission,
+  CampaignLead,
   ConsultationBooking,
   SupportRequest,
   NewsletterSubscriber,
@@ -174,6 +175,7 @@ adminCrudRouter.post("/leads/new-counts", requirePermission("leads", "view"), le
 
 // Form submissions — all gated under the "leads" permission bucket.
 mountCrud(adminCrudRouter, "leads/contact-submissions", ContactSubmission, { permissionKey: "leads" });
+mountCrud(adminCrudRouter, "leads/campaign-leads", CampaignLead, { permissionKey: "leads" });
 mountCrud(adminCrudRouter, "leads/consultation-bookings", ConsultationBooking, { permissionKey: "leads" });
 mountCrud(adminCrudRouter, "leads/support-requests", SupportRequest, { permissionKey: "leads" });
 mountCrud(adminCrudRouter, "leads/newsletter-subscribers", NewsletterSubscriber, { permissionKey: "leads" });

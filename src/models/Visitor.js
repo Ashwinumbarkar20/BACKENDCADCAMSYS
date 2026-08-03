@@ -7,6 +7,7 @@ const LinkedLeadSchema = new mongoose.Schema(
       type: String,
       enum: [
         "contact",
+        "campaign",
         "consultation",
         "support",
         "newsletter",

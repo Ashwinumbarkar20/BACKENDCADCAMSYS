@@ -1,11 +1,14 @@
 import {
   ContactSubmission,
+  CampaignLead,
   ConsultationBooking,
   SupportRequest,
   NewsletterSubscriber,
   ROIRequest,
   JobApplication,
   PdfDownloadRequest,
+  EnrollmentRequest,
+  PostProcessorRequest,
 } from "../../models/index.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ok } from "../../utils/apiResponse.js";
@@ -13,12 +16,15 @@ import { ok } from "../../utils/apiResponse.js";
 /** Lead inbox segments — matches admin sidebar paths under /leads (except visitors). */
 export const LEAD_INBOX_SEGMENTS = [
   { id: "leads/contact-submissions", model: ContactSubmission },
+  { id: "leads/campaign-leads", model: CampaignLead },
   { id: "leads/consultation-bookings", model: ConsultationBooking },
   { id: "leads/support-requests", model: SupportRequest },
   { id: "leads/newsletter-subscribers", model: NewsletterSubscriber },
   { id: "leads/roi-requests", model: ROIRequest },
   { id: "leads/job-applications", model: JobApplication },
   { id: "leads/pdf-downloads", model: PdfDownloadRequest },
+  { id: "leads/enrollments", model: EnrollmentRequest },
+  { id: "leads/post-processor-requests", model: PostProcessorRequest },
 ];
 
 function parseSince(iso) {

@@ -23,6 +23,7 @@ export * from "./Career.js";
 export * from "./News.js";
 
 export * from "./forms/ContactSubmission.js";
+export * from "./forms/CampaignLead.js";
 export * from "./forms/ConsultationBooking.js";
 export * from "./forms/SupportRequest.js";
 export * from "./forms/NewsletterSubscriber.js";
