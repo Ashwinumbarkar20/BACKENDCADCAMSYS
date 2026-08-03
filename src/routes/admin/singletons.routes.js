@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createSingletonControllers } from "../../controllers/admin/singleton.controller.js";
-import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage, BookDemoPage, ContactPage } from "../../models/index.js";
+import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage, BookDemoPage, ContactPage, SectionHeadings } from "../../models/index.js";
 import { requireOwner } from "../../middlewares/permissions.js";
 
 export const adminSingletonsRouter = Router();
@@ -83,6 +83,11 @@ for (const [segment, Model] of [["book-demo", BookDemoPage], ["contact-page", Co
 const roiCtl = createSingletonControllers(Roi, servicePop);
 adminSingletonsRouter.get("/roi-center", roiCtl.getOne);
 adminSingletonsRouter.put("/roi-center", roiCtl.updateOne);
+
+// Shared section headings for product / solution / industry detail pages.
+const sectionHeadingsCtl = createSingletonControllers(SectionHeadings);
+adminSingletonsRouter.get("/section-headings", sectionHeadingsCtl.getOne);
+adminSingletonsRouter.put("/section-headings", sectionHeadingsCtl.updateOne);
 
 const downloadsCtl = createSingletonControllers(DownloadsPage, {
   populate: ["items.file", "seo.ogImage", "seo.twitterImage"],

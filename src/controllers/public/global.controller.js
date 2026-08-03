@@ -5,6 +5,7 @@ import { HomePage } from "../../models/HomePage.js";
 import { SolutionsPage } from "../../models/SolutionsPage.js";
 import { About } from "../../models/About.js";
 import { Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage, BookDemoPage, ContactPage } from "../../models/ContentSingletons.js";
+import { SectionHeadings } from "../../models/SectionHeadings.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ok } from "../../utils/apiResponse.js";
 
@@ -22,6 +23,12 @@ async function getSingleton(Model, populate) {
 export const getPublicSettings = asyncHandler(async (_req, res) => {
   const settings = await getSingleton(Settings, ["logo", "favicon"]);
   return ok(res, settings);
+});
+
+// Site-wide fallbacks for the section headings on detail pages.
+export const getPublicSectionHeadings = asyncHandler(async (_req, res) => {
+  const doc = await getSingleton(SectionHeadings);
+  return ok(res, doc);
 });
 
 export const getPublicNavigation = asyncHandler(async (_req, res) => {
