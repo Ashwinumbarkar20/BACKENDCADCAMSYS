@@ -2,8 +2,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { created, ok } from "../utils/apiResponse.js";
 import { sanitizeAdminPayload } from "../utils/sanitizePayload.js";
 
-function normalizeBody(body) {
-  return sanitizeAdminPayload(body);
+function normalizeBody(body, Model) {
+  return sanitizeAdminPayload(body, Model);
 }
 
 function applyProductSolutionUnset(doc, body) {
@@ -35,7 +35,7 @@ export function createCrudControllers(
   });
 
   const createOne = asyncHandler(async (req, res) => {
-    const body = normalizeBody(req.body);
+    const body = normalizeBody(req.body, Model);
     const doc = await Model.create(body);
     if (afterCreate) await afterCreate(doc);
     return created(res, doc);
@@ -52,7 +52,7 @@ export function createCrudControllers(
     const doc = await Model.findById(req.params.id);
     if (!doc) return ok(res, null);
 
-    const body = normalizeBody(req.body);
+    const body = normalizeBody(req.body, Model);
     applyProductSolutionUnset(doc, body);
     doc.set(body);
     await doc.save();

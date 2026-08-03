@@ -1,19 +1,55 @@
-/** Strip empty strings from payloads — they break ObjectId refs and enums on save. */
-function stripEmptyStrings(value) {
-  if (value === "") return undefined;
-  if (value == null) return value;
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => stripEmptyStrings(item))
-      .filter((item) => item !== undefined);
+/**
+ * Whether `""` should be dropped from the payload for this path.
+ *
+ * An empty string genuinely breaks ObjectId refs and enums, which is why this
+ * stripping exists. But applying it to *every* field meant a cleared text box
+ * was simply omitted from the $set, so the previous value stayed in the
+ * database — clearing an intro, a tagline or an address was impossible.
+ *
+ * With the schema in hand we can be precise: drop "" only where it would
+ * actually fail to cast. Without a schema we keep the old, blunt behaviour.
+ */
+function shouldDropEmpty(schema, path) {
+  if (!schema) return true;
+  const entry = schema.path(path);
+  if (!entry) return true;
+  const kind = entry.instance;
+  if (kind === "ObjectID" || kind === "ObjectId") return true;
+  if (kind === "Number" || kind === "Date" || kind === "Boolean") return true;
+  if (Array.isArray(entry.enumValues) && entry.enumValues.length > 0) return true;
+  if (entry.options?.enum) return true;
+  return false;
+}
+
+function cleanObject(obj, schema, prefix = "") {
+  const out = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const path = prefix ? `${prefix}.${key}` : key;
+    const next = cleanValue(value, schema, path);
+    if (next !== undefined) out[key] = next;
   }
-  if (typeof value === "object" && !(value instanceof Date)) {
-    const out = {};
-    for (const [k, v] of Object.entries(value)) {
-      const next = stripEmptyStrings(v);
-      if (next !== undefined) out[k] = next;
+  return out;
+}
+
+function cleanValue(value, schema, path) {
+  if (value === "") return shouldDropEmpty(schema, path) ? undefined : "";
+  if (value == null) return value;
+
+  if (Array.isArray(value)) {
+    const entry = schema?.path(path);
+    const subSchema = entry?.schema || null;
+    if (subSchema) {
+      // Array of subdocuments — recurse with the subdocument's own schema.
+      return value.map((item) =>
+        item && typeof item === "object" ? cleanObject(item, subSchema) : item,
+      );
     }
-    return out;
+    // Array of primitives: blanks are noise, not data.
+    return value.filter((item) => item !== "" && item !== undefined && item !== null);
+  }
+
+  if (typeof value === "object" && !(value instanceof Date)) {
+    return cleanObject(value, schema, path);
   }
   return value;
 }
@@ -21,11 +57,14 @@ function stripEmptyStrings(value) {
 /**
  * Normalize admin write payloads before Mongoose create/set/save.
  * Fixes common CMS issues: status "", empty ObjectIds, incomplete nested rows.
+ *
+ * Pass the Model so blank text fields can be cleared — see shouldDropEmpty.
  */
-export function sanitizeAdminPayload(body) {
+export function sanitizeAdminPayload(body, Model = null) {
   if (!body || typeof body !== "object") return body;
 
-  const payload = stripEmptyStrings({ ...body });
+  const schema = Model?.schema ?? null;
+  const payload = cleanObject({ ...body }, schema);
 
   if ("status" in payload) {
     payload.status = payload.status === "published" ? "published" : "draft";

@@ -1,7 +1,7 @@
 import { ConsultationBooking } from "../models/index.js";
 
-/** Mon–Sat, 10:00–19:00 IST — five bookable start times per day. */
-export const APPOINTMENT_SLOT_TIMES = ["10:00", "11:30", "13:00", "15:00", "17:00"];
+/** Mon–Sat, 10:00–18:00 IST — five bookable start times per day. */
+export const APPOINTMENT_SLOT_TIMES = ["10:00", "11:30", "13:00", "14:30", "16:30"];
 
 const TZ = "Asia/Kolkata";
 

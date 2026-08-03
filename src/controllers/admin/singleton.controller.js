@@ -42,7 +42,7 @@ export function createSingletonControllers(Model, options = {}) {
   });
 
   const updateOne = asyncHandler(async (req, res) => {
-    const body = sanitizeAdminPayload(req.body);
+    const body = sanitizeAdminPayload(req.body, Model);
     let q = Model.findOneAndUpdate(
       { singletonKey: "global" },
       { $set: body, $setOnInsert: { singletonKey: "global" } },

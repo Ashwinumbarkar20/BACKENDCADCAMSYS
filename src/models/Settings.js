@@ -7,7 +7,7 @@ const ContactInfoSchema = new mongoose.Schema(
     phone: { type: String, default: "" },
     address: { type: String, default: "" },
     // Free text, one line per row — was hardcoded on the public contact panel.
-    businessHours: { type: String, default: "Monday – Saturday\n10:00 AM – 7:00 PM IST" },
+    businessHours: { type: String, default: "Monday – Saturday\n10:00 AM – 6:00 PM IST" },
     mapEmbedUrl: { type: String, default: "" },
   },
   { _id: false }
