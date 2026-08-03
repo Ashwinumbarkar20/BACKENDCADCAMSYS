@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createSingletonControllers } from "../../controllers/admin/singleton.controller.js";
 import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage, BookDemoPage, ContactPage, PrivacyPage, SectionHeadings } from "../../models/index.js";
 import { requireOwner } from "../../middlewares/permissions.js";
+import { PRIVACY_DEFAULTS } from "../../config/privacyPolicyDefault.js";
 
 export const adminSingletonsRouter = Router();
 
@@ -74,11 +75,20 @@ for (const [segment, Model] of [
   adminSingletonsRouter.put(`/${segment}`, ctl.updateOne);
 }
 
-for (const [segment, Model] of [["book-demo", BookDemoPage], ["contact-page", ContactPage], ["privacy-page", PrivacyPage]]) {
+for (const [segment, Model] of [["book-demo", BookDemoPage], ["contact-page", ContactPage]]) {
   const ctl = createSingletonControllers(Model, servicePop);
   adminSingletonsRouter.get(`/${segment}`, ctl.getOne);
   adminSingletonsRouter.put(`/${segment}`, ctl.updateOne);
 }
+
+// Privacy backfills the standard policy into any field left blank, so the
+// editor always opens with the same content the public page is serving.
+const privacyCtl = createSingletonControllers(PrivacyPage, {
+  ...servicePop,
+  ensureDefaults: PRIVACY_DEFAULTS,
+});
+adminSingletonsRouter.get("/privacy-page", privacyCtl.getOne);
+adminSingletonsRouter.put("/privacy-page", privacyCtl.updateOne);
 
 const roiCtl = createSingletonControllers(Roi, servicePop);
 adminSingletonsRouter.get("/roi-center", roiCtl.getOne);
