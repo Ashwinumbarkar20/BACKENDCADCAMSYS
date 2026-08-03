@@ -41,6 +41,11 @@ export const ServicePage = mongoose.model("ServicePage", buildContentSingletonSc
 export const BookDemoPage = mongoose.model("BookDemoPage", buildContentSingletonSchema());
 export const ContactPage = mongoose.model("ContactPage", buildContentSingletonSchema());
 
+// Privacy policy. `intro` holds the whole policy as rich text; while it is
+// empty the public page keeps rendering its built-in policy, so switching to
+// admin-managed content is opt-in rather than a blank page on deploy.
+export const PrivacyPage = mongoose.model("PrivacyPage", buildContentSingletonSchema());
+
 // ROI Center — intro content around the public ROI calculator.
 export const Roi = mongoose.model("Roi", buildContentSingletonSchema());
 

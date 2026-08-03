@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getPublicAbout, getPublicAlma, getPublicServicePage, getPublicAmc, getPublicTraining, getPublicPostProcessor, getPublicImplementationConsulting, getPublicRoi, getPublicDownloads, getPublicBookDemo, getPublicContactPage, getPublicFooter, getPublicHome, getPublicNavigation, getPublicSettings, getPublicSolutionsPage, getPublicSectionHeadings } from "../../controllers/public/global.controller.js";
+import { getPublicAbout, getPublicAlma, getPublicServicePage, getPublicAmc, getPublicTraining, getPublicPostProcessor, getPublicImplementationConsulting, getPublicRoi, getPublicDownloads, getPublicBookDemo, getPublicContactPage, getPublicFooter, getPublicHome, getPublicNavigation, getPublicSettings, getPublicSolutionsPage, getPublicSectionHeadings, getPublicPrivacyPage } from "../../controllers/public/global.controller.js";
 import { sitemapUrls } from "../../controllers/public/sitemap.controller.js";
 
 export const publicGlobalRouter = Router();
@@ -18,6 +18,7 @@ publicGlobalRouter.get("/post-processor-development", getPublicPostProcessor);
 publicGlobalRouter.get("/implementation-consulting", getPublicImplementationConsulting);
 publicGlobalRouter.get("/book-demo", getPublicBookDemo);
 publicGlobalRouter.get("/contact-page", getPublicContactPage);
+publicGlobalRouter.get("/privacy-page", getPublicPrivacyPage);
 publicGlobalRouter.get("/roi-center", getPublicRoi);
 publicGlobalRouter.get("/downloads", getPublicDownloads);
 publicGlobalRouter.get("/section-headings", getPublicSectionHeadings);

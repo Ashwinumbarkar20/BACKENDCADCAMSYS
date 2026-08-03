@@ -23,13 +23,18 @@ export const campaignBody = z.object({
 });
 
 export const contactBody = z.object({
-  firstName: z.string().trim().min(1).max(100),
-  lastName: z.string().trim().min(1).max(100),
+  firstName: z.string().trim().min(1, "First name is required").max(100),
+  lastName: z.string().trim().min(1, "Last name is required").max(100),
   name: z.string().trim().max(200).optional(),
-  email: z.string().email(),
-  company: optShortStr,
+  email: z.string().trim().email("Enter a valid email address"),
+  company: z.string().trim().min(1, "Company name is required").max(200),
   designation: optShortStr,
-  phone: z.string().trim().max(40).optional(),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "Enter a valid mobile number")
+    .max(40)
+    .regex(/^[\d+][\d\s()-]*$/, "Enter a valid mobile number"),
   country: optShortStr,
   levelOfInterest: z
     .enum(["browsing", "ready_to_purchase", "evaluating", "beginning_investigation"])
@@ -45,11 +50,18 @@ export const contactBody = z.object({
   botField: z.string().max(200).optional(),
 });
 
+// Book-a-demo. Everything the visitor sees is required — a demo request we
+// can't call back about isn't actionable.
 export const consultationBody = z.object({
-  name: z.string().trim().min(1).max(200),
-  email: z.string().email(),
-  company: optShortStr,
-  phone: z.string().trim().max(40).optional(),
+  name: z.string().trim().min(1, "Name is required").max(200),
+  email: z.string().trim().email("Enter a valid email address"),
+  company: z.string().trim().min(1, "Company is required").max(200),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "Enter a valid phone number")
+    .max(40)
+    .regex(/^[\d+][\d\s()-]*$/, "Enter a valid phone number"),
   consultationType: optShortStr,
   preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD"),
   preferredTime: z.string().regex(/^\d{2}:\d{2}$/, "Use HH:MM"),

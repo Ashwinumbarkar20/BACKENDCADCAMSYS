@@ -44,6 +44,7 @@ const AboutSchema = new mongoose.Schema(
     singletonKey: { type: String, default: "global", unique: true, index: true },
 
     // Structured content fields shown on the public /about page.
+    eyebrow: { type: String, default: "" }, // small label above the title, e.g. "About"
     heading: { type: String, default: "" }, // main page title, e.g. "About CADCAMSYS"
     tagline: { type: String, default: "" }, // short line under the heading
     heroImage: { type: mongoose.Schema.Types.ObjectId, ref: "Media" },

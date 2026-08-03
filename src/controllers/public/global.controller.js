@@ -4,7 +4,7 @@ import { Footer } from "../../models/Footer.js";
 import { HomePage } from "../../models/HomePage.js";
 import { SolutionsPage } from "../../models/SolutionsPage.js";
 import { About } from "../../models/About.js";
-import { Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage, BookDemoPage, ContactPage } from "../../models/ContentSingletons.js";
+import { Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage, BookDemoPage, ContactPage, PrivacyPage } from "../../models/ContentSingletons.js";
 import { SectionHeadings } from "../../models/SectionHeadings.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ok } from "../../utils/apiResponse.js";
@@ -130,6 +130,9 @@ export const getPublicBookDemo = asyncHandler(async (_req, res) =>
 );
 export const getPublicContactPage = asyncHandler(async (_req, res) =>
   ok(res, await getSingleton(ContactPage, servicePop)),
+);
+export const getPublicPrivacyPage = asyncHandler(async (_req, res) =>
+  ok(res, await getSingleton(PrivacyPage, servicePop)),
 );
 export const getPublicRoi = asyncHandler(async (_req, res) =>
   ok(res, await getSingleton(Roi, servicePop)),
