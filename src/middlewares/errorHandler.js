@@ -30,8 +30,14 @@ export function errorHandler(err, req, res, next) {
 
   const status = Number(err?.statusCode ?? err?.status ?? 500);
   const code = err?.code ?? "INTERNAL_ERROR";
+  // 4xx messages are written for the visitor — "That time is already booked",
+  // "That date has already passed" — and the forms show them as-is, so they have
+  // to survive production. Only 5xx (which can carry internals) is masked.
+  const isClientError = status >= 400 && status < 500;
   const message =
-    env.NODE_ENV === "production" ? "Something went wrong" : err?.message ?? "Unknown error";
+    env.NODE_ENV === "production" && !isClientError
+      ? "Something went wrong"
+      : err?.message ?? "Unknown error";
 
   if (env.NODE_ENV !== "production") {
     // eslint-disable-next-line no-console

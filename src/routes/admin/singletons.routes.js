@@ -3,6 +3,7 @@ import { createSingletonControllers } from "../../controllers/admin/singleton.co
 import { Settings, Navigation, Footer, HomePage, SolutionsPage, About, Alma, ServicePage, Amc, Training, PostProcessor, ImplementationConsulting, Roi, DownloadsPage, BookDemoPage, ContactPage, PrivacyPage, SectionHeadings } from "../../models/index.js";
 import { requireOwner } from "../../middlewares/permissions.js";
 import { PRIVACY_DEFAULTS } from "../../config/privacyPolicyDefault.js";
+import { invalidateBookingSettings } from "../../services/bookingSettings.js";
 
 export const adminSingletonsRouter = Router();
 
@@ -11,6 +12,9 @@ adminSingletonsRouter.use(requireOwner);
 
 const settingsCtl = createSingletonControllers(Settings, {
   populate: ["logo", "favicon"],
+  // Booking duration / gap live on this document and are cached — clear the
+  // cache on save so the change is live immediately.
+  onSaved: () => invalidateBookingSettings(),
 });
 adminSingletonsRouter.get("/settings", settingsCtl.getOne);
 adminSingletonsRouter.put("/settings", settingsCtl.updateOne);

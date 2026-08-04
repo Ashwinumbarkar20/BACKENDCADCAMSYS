@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { DEFAULT_DURATION_MINUTES } from "../../config/booking.js";
 
 /**
  * Demo bookings, plus the Zoho Meeting created for each one (FRD §8, §9).
@@ -24,6 +25,10 @@ const ConsultationBookingSchema = new mongoose.Schema(
     preferredDate: { type: Date },
     bookingYmd: { type: String, default: "", index: true },
     preferredTime: { type: String, default: "" },
+    // Length this booking was made at. Stored per booking so changing the
+    // duration under Settings → Booking can't shrink meetings already in the
+    // calendar — conflict checks keep honouring what the customer was promised.
+    durationMinutes: { type: Number, default: DEFAULT_DURATION_MINUTES },
     sourcePage: { type: String, default: "" },
     notes: { type: String, default: "" },
 

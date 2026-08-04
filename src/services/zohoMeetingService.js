@@ -96,14 +96,14 @@ function agendaHtml() {
   return `<ul>${MEETING_DEFAULTS.agenda.map((a) => `<li>${a}</li>`).join("")}</ul>`;
 }
 
-function sessionPayload({ ymd, time, customerEmail, customerName, topic }) {
+function sessionPayload({ ymd, time, customerEmail, customerName, topic, durationMinutes }) {
   return {
     session: {
       topic: topic || MEETING_DEFAULTS.topic,
       agenda: agendaHtml(),
       presenter: zohoConfig.presenterEmail || undefined,
       startTime: toZohoStartTime(ymd, time),
-      duration: MEETING_DEFAULTS.durationMinutes,
+      duration: Number(durationMinutes) > 0 ? Number(durationMinutes) : MEETING_DEFAULTS.durationMinutes,
       timezone: MEETING_DEFAULTS.timezone,
       participants: customerEmail
         ? [{ email: customerEmail, name: customerName || customerEmail }]
@@ -112,22 +112,25 @@ function sessionPayload({ ymd, time, customerEmail, customerName, topic }) {
   };
 }
 
-export async function createZohoMeeting({ ymd, time, customerEmail, customerName, topic }) {
+export async function createZohoMeeting({ ymd, time, customerEmail, customerName, topic, durationMinutes }) {
   const zsoid = await getZsoid();
   const json = await zohoFetch(`/api/v2/${zsoid}/sessions.json`, {
     method: "POST",
-    body: sessionPayload({ ymd, time, customerEmail, customerName, topic }),
+    body: sessionPayload({ ymd, time, customerEmail, customerName, topic, durationMinutes }),
   });
   const session = normalizeSession(json);
   log.info("meeting created", { meetingKey: session.meetingKey, start: `${ymd} ${time}` });
   return session;
 }
 
-export async function updateZohoMeeting(meetingKey, { ymd, time, customerEmail, customerName, topic }) {
+export async function updateZohoMeeting(
+  meetingKey,
+  { ymd, time, customerEmail, customerName, topic, durationMinutes },
+) {
   const zsoid = await getZsoid();
   const json = await zohoFetch(`/api/v2/${zsoid}/sessions/${meetingKey}.json`, {
     method: "PUT",
-    body: sessionPayload({ ymd, time, customerEmail, customerName, topic }),
+    body: sessionPayload({ ymd, time, customerEmail, customerName, topic, durationMinutes }),
   });
   const session = normalizeSession(json);
   log.info("meeting updated", { meetingKey, start: `${ymd} ${time}` });

@@ -26,9 +26,9 @@ export const rescheduleBookingAdmin = asyncHandler(async (req, res) => {
   }
 
   // Same rules as a public booking, ignoring this booking's own slot.
-  await assertSlotAvailable(ymd, time, { excludeId: booking._id });
+  const { durationMinutes } = await assertSlotAvailable(ymd, time, { excludeId: booking._id });
 
-  const updated = await rescheduleBooking(booking, { ymd, time });
+  const updated = await rescheduleBooking(booking, { ymd, time, durationMinutes });
   return ok(res, updated);
 });
 

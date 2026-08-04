@@ -64,6 +64,7 @@ export async function provisionMeeting(booking, { silent = false } = {}) {
       customerEmail: booking.email,
       customerName: booking.name,
       topic: booking.meetingTitle || MEETING_DEFAULTS.topic,
+      durationMinutes: booking.durationMinutes,
     });
     applySession(booking, session);
     booking.meetingTitle = booking.meetingTitle || MEETING_DEFAULTS.topic;
@@ -94,10 +95,13 @@ export async function provisionMeeting(booking, { silent = false } = {}) {
 }
 
 /** FRD §15 — move an existing booking and tell everyone. */
-export async function rescheduleBooking(booking, { ymd, time }) {
+export async function rescheduleBooking(booking, { ymd, time, durationMinutes }) {
   const previous = { ymd: booking.bookingYmd, time: booking.preferredTime };
   booking.bookingYmd = ymd;
   booking.preferredTime = time;
+  // The new slot was validated against the current setting, so the meeting is
+  // re-cut at that length rather than the one it was originally booked at.
+  if (Number(durationMinutes) > 0) booking.durationMinutes = Number(durationMinutes);
   booking.icsSequence = (booking.icsSequence || 0) + 1;
 
   if (booking.meetingKey && isZohoConfigured()) {
@@ -108,6 +112,7 @@ export async function rescheduleBooking(booking, { ymd, time }) {
         customerEmail: booking.email,
         customerName: booking.name,
         topic: booking.meetingTitle,
+        durationMinutes: booking.durationMinutes,
       });
       applySession(booking, session);
     } catch (err) {

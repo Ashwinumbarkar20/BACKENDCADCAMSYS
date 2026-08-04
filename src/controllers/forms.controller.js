@@ -18,6 +18,7 @@ import {
 import { notifyAdminLead, sendLeadConfirmation } from "../services/email.service.js";
 import {
   assertSlotAvailable,
+  assertNoConflictAfterInsert,
   assertNotDuplicate,
   preferredDateFromYmd,
   getSlotsForDate,
@@ -146,7 +147,7 @@ export const bookConsultation = asyncHandler(async (req, res) => {
   const email = String(rest.email || "").trim();
 
   // Throws 400/409 with a message the form shows as-is.
-  await assertSlotAvailable(dateYmd, preferredTime);
+  const { durationMinutes } = await assertSlotAvailable(dateYmd, preferredTime);
   await assertNotDuplicate({ email, ymd: dateYmd, time: preferredTime });
 
   const doc = await ConsultationBooking.create({
@@ -155,10 +156,15 @@ export const bookConsultation = asyncHandler(async (req, res) => {
     preferredDate: preferredDateFromYmd(dateYmd),
     bookingYmd: dateYmd,
     preferredTime,
+    durationMinutes,
     sourcePage: rest.sourcePage || "",
     meetingTitle: MEETING_DEFAULTS.topic,
     status: "pending_meeting",
   });
+
+  // Two people submitting the same slot at once can both clear the check above.
+  // This removes the loser before a meeting is ever created for it.
+  await assertNoConflictAfterInsert(doc);
 
   notify(linkSubmissionToVisitor(req, "consultation", doc._id));
 
@@ -172,7 +178,7 @@ export const bookConsultation = asyncHandler(async (req, res) => {
     email: booking.email,
     bookingYmd: booking.bookingYmd,
     preferredTime: booking.preferredTime,
-    durationMinutes: MEETING_DEFAULTS.durationMinutes,
+    durationMinutes: booking.durationMinutes,
     meetingTitle: booking.meetingTitle,
     meetingId: booking.meetingId,
     joinUrl: booking.joinUrl,

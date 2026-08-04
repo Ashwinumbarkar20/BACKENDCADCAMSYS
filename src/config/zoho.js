@@ -16,6 +16,8 @@
  * the .in defaults match.
  */
 
+import { DEFAULT_DURATION_MINUTES } from "./booking.js";
+
 const trim = (v) => String(v ?? "").trim();
 
 export const zohoConfig = {
@@ -30,11 +32,16 @@ export const zohoConfig = {
   presenterEmail: trim(process.env.ZOHO_PRESENTER_EMAIL),
 };
 
-/** Meeting shape from the FRD — topic, agenda, duration and timezone. */
+/**
+ * Meeting shape from the FRD — topic, agenda, duration and timezone.
+ *
+ * `durationMinutes` is only a fallback: the live length comes from
+ * Settings → Booking and is stored on each booking as `durationMinutes`.
+ */
 export const MEETING_DEFAULTS = {
   topic: trim(process.env.ZOHO_MEETING_TOPIC) || "Almacam Product Demonstration",
   agenda: ["Company Overview", "Software Demonstration", "Questions & Answers"],
-  durationMinutes: 60,
+  durationMinutes: DEFAULT_DURATION_MINUTES,
   timezone: "Asia/Kolkata",
 };
 

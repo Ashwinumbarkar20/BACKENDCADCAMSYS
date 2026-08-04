@@ -1,12 +1,17 @@
 import { ConsultationBooking } from "../models/index.js";
+import { getBookingSettings } from "./bookingSettings.js";
 
 /**
  * Booking rules (FRD §17), all in Asia/Kolkata.
  *
- * Bookings are no longer limited to a fixed list of start times — any time
- * inside working hours is allowed, and conflicts are worked out from the
- * meeting duration plus a buffer. The suggested slot list below is still used
- * to render "next available" chips on the site.
+ * Bookings are not limited to a fixed list of start times — any time inside
+ * working hours is allowed, and conflicts are worked out from the meeting
+ * duration plus the gap that has to sit between two meetings. Both of those
+ * come from Settings → Booking, so the owner can change them without a deploy.
+ *
+ * A booked slot therefore blocks `duration + gap` on either side: once someone
+ * takes 15:00 for a 30-minute demo with a 10-minute gap, nobody else can start
+ * between 14:20 and 15:40.
  *
  * Working hours follow the 10–6 change requested for the site, not the 10–7 in
  * the original FRD text.
@@ -15,11 +20,9 @@ const TZ = "Asia/Kolkata";
 
 export const WORK_START_MINUTES = 10 * 60; // 10:00
 export const WORK_END_MINUTES = 18 * 60; // 18:00
-export const MEETING_DURATION_MINUTES = 60;
-export const BUFFER_MINUTES = 15;
 
-/** Suggested start times shown as chips; not a restriction on what's bookable. */
-export const APPOINTMENT_SLOT_TIMES = ["10:00", "11:30", "13:00", "14:30", "16:30"];
+/** Spacing of the suggested start times shown as chips / dropdown options. */
+export const SLOT_STEP_MINUTES = 30;
 
 export function toMinutes(hhmm) {
   const m = String(hhmm || "").match(/^(\d{1,2}):(\d{2})$/);
@@ -94,23 +97,47 @@ function slotLabel(time) {
   return `${h12}:${String(min).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
 }
 
-/** Live bookings for a day, as {start,end} minute ranges including the buffer. */
-async function getBusyRanges(ymd, { excludeId } = {}) {
-  const filter = { bookingYmd: ymd, status: { $ne: "cancelled" } };
-  if (excludeId) filter._id = { $ne: excludeId };
-
-  const rows = await ConsultationBooking.find(filter).select("preferredTime").lean();
-  return rows
-    .map((r) => toMinutes(r.preferredTime))
-    .filter((m) => m != null)
-    .map((start) => ({
-      start: start - BUFFER_MINUTES,
-      end: start + MEETING_DURATION_MINUTES + BUFFER_MINUTES,
-    }));
+/** Suggested start times for a day: every 30 minutes that still fits the demo. */
+export function slotTimesFor(durationMinutes) {
+  const times = [];
+  for (
+    let start = WORK_START_MINUTES;
+    start + durationMinutes <= WORK_END_MINUTES;
+    start += SLOT_STEP_MINUTES
+  ) {
+    times.push(fromMinutes(start));
+  }
+  return times;
 }
 
-function overlaps(startMin, busy) {
-  const end = startMin + MEETING_DURATION_MINUTES;
+/**
+ * Live bookings for a day as {start,end} minute ranges, already widened by the
+ * gap on both sides so a plain overlap test is all a caller needs.
+ *
+ * Each booking is measured with the duration it was made at
+ * (`booking.durationMinutes`), not today's setting — shortening demos from 60 to
+ * 30 minutes must not suddenly free up the second half of a meeting that was
+ * actually booked for an hour.
+ */
+async function getBusyRanges(ymd, { excludeId, bufferMinutes, fallbackDuration, maxId } = {}) {
+  const filter = { bookingYmd: ymd, status: { $ne: "cancelled" } };
+  if (excludeId) filter._id = { $ne: excludeId };
+  // Used by the post-insert race check: only bookings created before ours.
+  if (maxId) filter._id = { ...(filter._id || {}), $lt: maxId };
+
+  const rows = await ConsultationBooking.find(filter).select("preferredTime durationMinutes").lean();
+  return rows
+    .map((r) => {
+      const start = toMinutes(r.preferredTime);
+      if (start == null) return null;
+      const dur = Number(r.durationMinutes) > 0 ? Number(r.durationMinutes) : fallbackDuration;
+      return { start: start - bufferMinutes, end: start + dur + bufferMinutes };
+    })
+    .filter(Boolean);
+}
+
+function overlaps(startMin, durationMinutes, busy) {
+  const end = startMin + durationMinutes;
   return busy.some((b) => startMin < b.end && end > b.start);
 }
 
@@ -119,17 +146,18 @@ export async function getSlotsForDate(ymd) {
   if (!isBookableWeekday(ymd)) return { date: ymd, valid: false, reason: "closed_sunday", slots: [] };
   if (isPastDate(ymd)) return { date: ymd, valid: false, reason: "past_date", slots: [] };
 
-  const busy = await getBusyRanges(ymd);
+  const { durationMinutes, bufferMinutes } = await getBookingSettings();
+  const busy = await getBusyRanges(ymd, { bufferMinutes, fallbackDuration: durationMinutes });
   const isToday = ymd === todayYmdInTz();
   const nowMin = nowMinutesInTz();
 
-  const slots = APPOINTMENT_SLOT_TIMES.map((time) => {
+  const slots = slotTimesFor(durationMinutes).map((time) => {
     const start = toMinutes(time);
     const tooLate = isToday && start <= nowMin;
     return {
       time,
       label: slotLabel(time),
-      available: !tooLate && !overlaps(start, busy),
+      available: !tooLate && !overlaps(start, durationMinutes, busy),
     };
   });
 
@@ -137,7 +165,8 @@ export async function getSlotsForDate(ymd) {
     date: ymd,
     valid: true,
     workingHours: { start: fromMinutes(WORK_START_MINUTES), end: fromMinutes(WORK_END_MINUTES) },
-    durationMinutes: MEETING_DURATION_MINUTES,
+    durationMinutes,
+    bufferMinutes,
     slots,
   };
 }
@@ -158,10 +187,12 @@ export async function getUpcomingAvailability(days = 21) {
 }
 
 /**
- * Throws a 4xx error unless the requested start time is bookable.
+ * Throws a 4xx error unless the requested start time is bookable, and returns
+ * the duration the booking should be saved with.
  * `excludeId` lets a reschedule ignore the booking being moved.
  */
 export async function assertSlotAvailable(ymd, time, { excludeId } = {}) {
+  const { durationMinutes, bufferMinutes } = await getBookingSettings();
   const start = toMinutes(time);
   if (start == null) {
     const err = new Error("Enter a valid time");
@@ -193,24 +224,64 @@ export async function assertSlotAvailable(ymd, time, { excludeId } = {}) {
     err.code = "PAST_TIME";
     throw err;
   }
-  if (start < WORK_START_MINUTES || start + MEETING_DURATION_MINUTES > WORK_END_MINUTES) {
+  if (start < WORK_START_MINUTES || start + durationMinutes > WORK_END_MINUTES) {
     const err = new Error(
       `Demos run Monday to Saturday, ${fromMinutes(WORK_START_MINUTES)}–${fromMinutes(
         WORK_END_MINUTES,
-      )} IST. Each demo lasts ${MEETING_DURATION_MINUTES} minutes.`,
+      )} IST. Each demo lasts ${durationMinutes} minutes.`,
     );
     err.status = 400;
     err.code = "OUTSIDE_HOURS";
     throw err;
   }
 
-  const busy = await getBusyRanges(ymd, { excludeId });
-  if (overlaps(start, busy)) {
-    const err = new Error("That time is already booked. Please choose another.");
+  const busy = await getBusyRanges(ymd, {
+    excludeId,
+    bufferMinutes,
+    fallbackDuration: durationMinutes,
+  });
+  if (overlaps(start, durationMinutes, busy)) {
+    const err = new Error(
+      bufferMinutes > 0
+        ? `That time is already booked. Demos need ${bufferMinutes} minutes clear between them — please choose another time.`
+        : "That time is already booked. Please choose another.",
+    );
     err.status = 409;
     err.code = "SLOT_TAKEN";
     throw err;
   }
+
+  return { durationMinutes, bufferMinutes };
+}
+
+/**
+ * Second line of defence against two people booking the same slot.
+ *
+ * `assertSlotAvailable` reads and the insert writes, so two requests that
+ * arrive together can both pass the read and both save. This runs *after* the
+ * insert: if an earlier-created booking now conflicts, the later one loses,
+ * gets removed, and its owner sees the same "already booked" message they would
+ * have seen a moment earlier. Ordering by `_id` gives both requests the same
+ * answer about who was first, so exactly one of them is rolled back.
+ */
+export async function assertNoConflictAfterInsert(booking) {
+  const { durationMinutes, bufferMinutes } = await getBookingSettings();
+  const start = toMinutes(booking.preferredTime);
+  if (start == null) return;
+  const dur = Number(booking.durationMinutes) > 0 ? Number(booking.durationMinutes) : durationMinutes;
+
+  const busy = await getBusyRanges(booking.bookingYmd, {
+    bufferMinutes,
+    fallbackDuration: durationMinutes,
+    maxId: booking._id,
+  });
+  if (!overlaps(start, dur, busy)) return;
+
+  await ConsultationBooking.deleteOne({ _id: booking._id });
+  const err = new Error("That time was just booked by someone else. Please choose another.");
+  err.status = 409;
+  err.code = "SLOT_TAKEN";
+  throw err;
 }
 
 /** Reject a second booking from the same person for the same slot (FRD §17). */

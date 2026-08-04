@@ -10,6 +10,9 @@ import { sanitizeAdminPayload } from "../../utils/sanitizePayload.js";
  * only apply at creation, so a singleton created before a default existed would
  * otherwise stay empty forever — which is how the Privacy Policy editor came up
  * blank while the public page was showing a full policy.
+ *
+ * `onSaved` runs after a successful PUT — used by Settings to drop the cached
+ * booking rules so an edit applies to the very next request.
  */
 export function createSingletonControllers(Model, options = {}) {
   const getOne = asyncHandler(async (_req, res) => {
@@ -56,6 +59,7 @@ export function createSingletonControllers(Model, options = {}) {
       }
     }
     const doc = await q;
+    options.onSaved?.(doc);
     return ok(res, doc);
   });
 

@@ -78,6 +78,12 @@ function agendaList() {
     .join("")}</ul>`;
 }
 
+/** The length this booking was made at, falling back to the shipped default. */
+function bookingDuration(booking) {
+  const n = Number(booking?.durationMinutes);
+  return n > 0 ? n : MEETING_DEFAULTS.durationMinutes;
+}
+
 function icsFor(booking, method, sequence) {
   return buildMeetingIcs({
     uid: `booking-${booking._id}@cadcamsys.com`,
@@ -85,6 +91,7 @@ function icsFor(booking, method, sequence) {
     method,
     ymd: booking.bookingYmd,
     time: booking.preferredTime,
+    durationMinutes: bookingDuration(booking),
     title: booking.meetingTitle || MEETING_DEFAULTS.topic,
     description: `${MEETING_DEFAULTS.agenda.join(" • ")}${
       booking.joinUrl ? `\n\nJoin: ${booking.joinUrl}` : ""
@@ -116,7 +123,7 @@ export async function sendBookingConfirmation(booking, { method = "REQUEST", seq
          ["Product", booking.consultationType || "Almacam suite"],
          ["Date", prettyDate(booking.bookingYmd)],
          ["Time", prettyTime(booking.preferredTime)],
-         ["Duration", `${MEETING_DEFAULTS.durationMinutes} minutes`],
+         ["Duration", `${bookingDuration(booking)} minutes`],
          ["Meeting ID", booking.meetingId],
          ["Password", booking.meetingPassword],
        ])}
@@ -156,6 +163,7 @@ export async function sendBookingOrganizerNotice(booking, { method = "REQUEST", 
     ["Consultation type", booking.consultationType],
     ["Date", prettyDate(booking.bookingYmd)],
     ["Time", prettyTime(booking.preferredTime)],
+    ["Duration", `${bookingDuration(booking)} minutes`],
     ["Meeting ID", booking.meetingId],
     ["Status", booking.status],
     ["Remarks", booking.notes],
