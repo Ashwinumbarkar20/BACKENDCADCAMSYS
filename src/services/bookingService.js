@@ -51,6 +51,9 @@ export async function provisionMeeting(booking, { silent = false } = {}) {
     await booking.save();
     log.warn("zoho not configured — booking left pending", { booking: String(booking._id) });
     if (!silent) {
+      // The customer is told their slot is held either way — the form promises
+      // an email, and a Zoho problem is not their problem.
+      notify(sendBookingConfirmation(booking, { linkPending: true }), "customer email (link pending)");
       notify(sendBookingOrganizerNotice(booking), "organizer email");
       notify(sendMeetingFailureAlert(booking, "Zoho is not configured"), "failure alert");
     }
@@ -87,6 +90,7 @@ export async function provisionMeeting(booking, { silent = false } = {}) {
       message: err?.message,
     });
     if (!silent) {
+      notify(sendBookingConfirmation(booking, { linkPending: true }), "customer email (link pending)");
       notify(sendBookingOrganizerNotice(booking), "organizer email");
       notify(sendMeetingFailureAlert(booking, booking.meetingError), "failure alert");
     }
@@ -183,8 +187,15 @@ export async function retryPendingMeetings({ limit = 10 } = {}) {
     const updated = await provisionMeeting(booking, { silent: true });
     if (updated.status === "confirmed") {
       recovered += 1;
-      notify(sendBookingConfirmation(updated), "customer email (retry)");
-      notify(sendBookingOrganizerNotice(updated), "organizer email (retry)");
+      // The customer already holds a "link to follow" invite for this slot, so
+      // bump the sequence — calendar clients replace that event with the one
+      // carrying the join link instead of adding a second copy.
+      updated.icsSequence = (updated.icsSequence || 0) + 1;
+      // eslint-disable-next-line no-await-in-loop
+      await updated.save();
+      const opts = { sequence: updated.icsSequence };
+      notify(sendBookingConfirmation(updated, opts), "customer email (retry)");
+      notify(sendBookingOrganizerNotice(updated, opts), "organizer email (retry)");
     }
   }
 

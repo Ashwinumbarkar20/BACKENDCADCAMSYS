@@ -103,8 +103,18 @@ function icsFor(booking, method, sequence) {
   });
 }
 
-/** FRD §10 — customer confirmation, with the calendar invite attached. */
-export async function sendBookingConfirmation(booking, { method = "REQUEST", sequence = 0 } = {}) {
+/**
+ * FRD §10 — customer confirmation, with the calendar invite attached.
+ *
+ * `linkPending` is for a booking whose slot is held but whose meeting hasn't
+ * been created yet: the date, time and calendar invite are all real, only the
+ * join link is missing, so the email goes out saying exactly that instead of
+ * the customer hearing nothing at all.
+ */
+export async function sendBookingConfirmation(
+  booking,
+  { method = "REQUEST", sequence = 0, linkPending = false } = {},
+) {
   const rescheduleUrl = `${SITE}/contact?ref=${encodeURIComponent(String(booking._id))}`;
   const isCancel = method === "CANCEL";
 
@@ -127,7 +137,11 @@ export async function sendBookingConfirmation(booking, { method = "REQUEST", seq
          ["Meeting ID", booking.meetingId],
          ["Password", booking.meetingPassword],
        ])}
-       ${button(booking.joinUrl, "Join Meeting")}
+       ${
+         linkPending
+           ? `<p style="margin:0 0 20px;padding:12px 14px;background:#f1f5f9;border-radius:8px;font-size:14px;color:#334155;">Your slot is held. We're setting up the meeting link now and will email it to you shortly — the date and time above will not change.</p>`
+           : button(booking.joinUrl, "Join Meeting")
+       }
        ${agendaList()}
        <p style="margin:0;font-size:13px;color:#64748b;">Need a different slot? <a href="${rescheduleUrl}" style="color:#2563eb;">Request a reschedule</a>.</p>`;
 
