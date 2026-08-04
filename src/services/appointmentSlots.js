@@ -21,9 +21,6 @@ const TZ = "Asia/Kolkata";
 export const WORK_START_MINUTES = 10 * 60; // 10:00
 export const WORK_END_MINUTES = 18 * 60; // 18:00
 
-/** Spacing of the suggested start times shown as chips / dropdown options. */
-export const SLOT_STEP_MINUTES = 30;
-
 export function toMinutes(hhmm) {
   const m = String(hhmm || "").match(/^(\d{1,2}):(\d{2})$/);
   if (!m) return null;
@@ -97,29 +94,17 @@ function slotLabel(time) {
   return `${h12}:${String(min).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
 }
 
-/** Suggested start times for a day: every 30 minutes that still fits the demo. */
-export function slotTimesFor(durationMinutes) {
-  const times = [];
-  for (
-    let start = WORK_START_MINUTES;
-    start + durationMinutes <= WORK_END_MINUTES;
-    start += SLOT_STEP_MINUTES
-  ) {
-    times.push(fromMinutes(start));
-  }
-  return times;
-}
-
 /**
- * Live bookings for a day as {start,end} minute ranges, already widened by the
- * gap on both sides so a plain overlap test is all a caller needs.
+ * Booked meetings for a day as {start,end} minute ranges — the real meeting
+ * times, without the gap folded in. Callers add the gap themselves so the same
+ * list can answer "does this clash?" and "when does the next demo start?".
  *
  * Each booking is measured with the duration it was made at
  * (`booking.durationMinutes`), not today's setting — shortening demos from 60 to
  * 30 minutes must not suddenly free up the second half of a meeting that was
  * actually booked for an hour.
  */
-async function getBusyRanges(ymd, { excludeId, bufferMinutes, fallbackDuration, maxId } = {}) {
+async function getBookedRanges(ymd, { excludeId, fallbackDuration, maxId } = {}) {
   const filter = { bookingYmd: ymd, status: { $ne: "cancelled" } };
   if (excludeId) filter._id = { $ne: excludeId };
   // Used by the post-insert race check: only bookings created before ours.
@@ -131,14 +116,57 @@ async function getBusyRanges(ymd, { excludeId, bufferMinutes, fallbackDuration, 
       const start = toMinutes(r.preferredTime);
       if (start == null) return null;
       const dur = Number(r.durationMinutes) > 0 ? Number(r.durationMinutes) : fallbackDuration;
-      return { start: start - bufferMinutes, end: start + dur + bufferMinutes };
+      return { start, end: start + dur };
     })
-    .filter(Boolean);
+    .filter(Boolean)
+    .sort((a, b) => a.start - b.start);
 }
 
-function overlaps(startMin, durationMinutes, busy) {
+/** The booking this candidate would run into, gap included — or undefined. */
+function clashingBooking(startMin, durationMinutes, booked, bufferMinutes) {
   const end = startMin + durationMinutes;
-  return busy.some((b) => startMin < b.end && end > b.start);
+  return booked.find((b) => startMin < b.end + bufferMinutes && end > b.start - bufferMinutes);
+}
+
+function conflicts(startMin, durationMinutes, booked, bufferMinutes) {
+  return Boolean(clashingBooking(startMin, durationMinutes, booked, bufferMinutes));
+}
+
+/**
+ * Suggested start times for a day, packed back-to-back with the gap between
+ * them and re-anchored around whatever is already booked.
+ *
+ * Walk the day from the first bookable minute: each suggestion is one demo
+ * long, and the next one starts a gap later. When a candidate runs into an
+ * existing booking the walk jumps to that meeting's end plus the gap and
+ * carries on from there — so a 3:00 PM demo (30 min, 10 min gap) is followed by
+ * 3:40, not by whatever the next round half-hour happened to be. Nothing
+ * returned here clashes with anything.
+ *
+ * These are suggestions, not a restriction: `assertSlotAvailable` accepts any
+ * time that clears the same gap, so a visitor typing 2:20 PM is still fine.
+ */
+function suggestedStarts({ durationMinutes, bufferMinutes, booked, fromMinute }) {
+  const starts = [];
+  let cursor = fromMinute;
+  // Each pass either records a slot or skips past a booking, and both move the
+  // cursor forward — the bound is belt-and-braces against a pathological day.
+  for (let pass = 0; pass < 500; pass += 1) {
+    if (cursor + durationMinutes > WORK_END_MINUTES) break;
+    const clash = clashingBooking(cursor, durationMinutes, booked, bufferMinutes);
+    if (clash) {
+      cursor = clash.end + bufferMinutes;
+      continue;
+    }
+    starts.push(cursor);
+    cursor += durationMinutes + bufferMinutes;
+  }
+  return starts;
+}
+
+/** Round up to the next quarter hour, so today's list doesn't offer 2:07 PM. */
+function ceilToQuarter(minute) {
+  return Math.ceil(minute / 15) * 15;
 }
 
 export async function getSlotsForDate(ymd) {
@@ -147,19 +175,35 @@ export async function getSlotsForDate(ymd) {
   if (isPastDate(ymd)) return { date: ymd, valid: false, reason: "past_date", slots: [] };
 
   const { durationMinutes, bufferMinutes } = await getBookingSettings();
-  const busy = await getBusyRanges(ymd, { bufferMinutes, fallbackDuration: durationMinutes });
+  const booked = await getBookedRanges(ymd, { fallbackDuration: durationMinutes });
   const isToday = ymd === todayYmdInTz();
-  const nowMin = nowMinutesInTz();
 
-  const slots = slotTimesFor(durationMinutes).map((time) => {
-    const start = toMinutes(time);
-    const tooLate = isToday && start <= nowMin;
-    return {
-      time,
-      label: slotLabel(time),
-      available: !tooLate && !overlaps(start, durationMinutes, busy),
-    };
-  });
+  // Today's list starts from now, not from opening time, so the suggestions
+  // stay packed against the next minute someone could actually be seen.
+  const fromMinute = isToday
+    ? Math.max(WORK_START_MINUTES, ceilToQuarter(nowMinutesInTz() + 1))
+    : WORK_START_MINUTES;
+
+  const open = suggestedStarts({ durationMinutes, bufferMinutes, booked, fromMinute }).map(
+    (start) => ({
+      time: fromMinutes(start),
+      label: slotLabel(fromMinutes(start)),
+      available: true,
+    }),
+  );
+
+  // Taken times are listed too, marked unavailable — seeing "3:00 PM booked"
+  // is what explains why the next suggestion is 3:40 and not 3:30.
+  const taken = booked
+    .filter((b) => b.start >= fromMinute)
+    .map((b) => ({
+      time: fromMinutes(b.start),
+      label: slotLabel(fromMinutes(b.start)),
+      available: false,
+      booked: true,
+    }));
+
+  const slots = [...open, ...taken].sort((a, b) => toMinutes(a.time) - toMinutes(b.time));
 
   return {
     date: ymd,
@@ -235,12 +279,11 @@ export async function assertSlotAvailable(ymd, time, { excludeId } = {}) {
     throw err;
   }
 
-  const busy = await getBusyRanges(ymd, {
+  const booked = await getBookedRanges(ymd, {
     excludeId,
-    bufferMinutes,
     fallbackDuration: durationMinutes,
   });
-  if (overlaps(start, durationMinutes, busy)) {
+  if (conflicts(start, durationMinutes, booked, bufferMinutes)) {
     const err = new Error(
       bufferMinutes > 0
         ? `That time is already booked. Demos need ${bufferMinutes} minutes clear between them — please choose another time.`
@@ -270,12 +313,11 @@ export async function assertNoConflictAfterInsert(booking) {
   if (start == null) return;
   const dur = Number(booking.durationMinutes) > 0 ? Number(booking.durationMinutes) : durationMinutes;
 
-  const busy = await getBusyRanges(booking.bookingYmd, {
-    bufferMinutes,
+  const booked = await getBookedRanges(booking.bookingYmd, {
     fallbackDuration: durationMinutes,
     maxId: booking._id,
   });
-  if (!overlaps(start, dur, busy)) return;
+  if (!conflicts(start, dur, booked, bufferMinutes)) return;
 
   await ConsultationBooking.deleteOne({ _id: booking._id });
   const err = new Error("That time was just booked by someone else. Please choose another.");
