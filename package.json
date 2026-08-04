@@ -9,6 +9,7 @@
     "migrate:drop-solution-refs": "node src/migrations/2026-05-15-drop-solution-refs.js",
     "migrate:about-singleton": "node src/migrations/2026-07-19-about-singleton.js",
     "migrate:booking-duration": "node src/migrations/2026-08-04-booking-duration.js",
+    "zoho:refresh-token": "node src/scripts/zohoRefreshToken.js",
     "seed:demo": "node src/scripts/seedDemoData.js",
     "seed:navigation": "node src/scripts/seedNavigation.js",
     "seed:home": "node src/scripts/seedHome.js",
